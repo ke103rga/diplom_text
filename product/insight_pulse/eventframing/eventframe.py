@@ -32,7 +32,8 @@ class EventFrame:
         """
         Получить данные DataFrame.
         """
-        return self.data.copy()
+        return self.data.copy()\
+            .sort_values([self.cols_schema.user_id, self.cols_schema.event_timestamp, self.cols_schema.event_type_index])
 
     def filter(self, conditions: List[str], inplace: bool = False) -> 'EventFrame':
         """
