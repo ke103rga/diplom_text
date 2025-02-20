@@ -13,10 +13,13 @@ class EventFrame:
         Инициализация класса EventFrame.
 
         """
-        self.data = data
+        self.data = data.copy()
         self.cols_schema = EventFrameColsSchema(cols_schema)
         if prepare:
             self.prepare()
+        else:
+            if cols_schema.event_id is None or cols_schema.event_type is None or cols_schema.event_type_index is None:
+                raise ValueError('...')
 
     def prepare(self):
         if self.cols_schema.event_id is None:
@@ -32,8 +35,11 @@ class EventFrame:
         """
         Получить данные DataFrame.
         """
-        return self.data.copy()\
-            .sort_values([self.cols_schema.user_id, self.cols_schema.event_timestamp, self.cols_schema.event_type_index])
+        sort_cols_list = [self.cols_schema.user_id, self.cols_schema.event_timestamp]
+        if self.cols_schema.event_type_index is not None:
+            sort_cols_list.append(self.cols_schema.event_type_index)
+            
+        return self.data.copy().sort_values(sort_cols_list)
 
     def filter(self, conditions: List[str], inplace: bool = False) -> 'EventFrame':
         """

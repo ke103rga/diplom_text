@@ -27,7 +27,7 @@ def create_frame():
     return frame
 
 
-def test_filter(frame):
+def _test_filter(frame):
     conditions = [
         "client_id == 'user_1'",
         "action.isin(['A', 'B'])"
@@ -36,23 +36,36 @@ def test_filter(frame):
     print(frame.filter(conditions).to_dataframe(), end='\n\n')
 
 
-def test_AddStartEndEventsPreprocessor(frame):
-    pr = AddStartEndEventsPreprocessor()
-    print('Apply preprocessor to data and schema:')
-    print(pr.apply(frame.data, frame.cols_schema).to_dataframe().drop(columns=['action', 'event_id']), end='\n\n')
+def _test_AddStartEndEventsPreprocessor():
+    df = pd.DataFrame(
+        [
+            ['user_1', 'A', '2023-01-01 00:00:00'],
+            ['user_1', 'B', '2023-01-01 00:00:05'],
+            ['user_2', 'B', '2023-01-01 00:00:02'],
+            ['user_2', 'A', '2023-01-01 00:00:03'],
+            ['user_2', 'A', '2023-01-01 00:00:07']
+        ],
+        columns=['client_id', 'action', 'datetime']
+    )
 
-    print('Apply preprocessor directly to frame:')
-    print(pr.apply(frame).to_dataframe().drop(columns=['action', 'event_id']), end='\n\n')
+    raw_data_schema = {
+        'user_id': 'client_id',
+        'event_name': 'action',
+        'event_timestamp': 'datetime'
+    }
+
+    asev = AddStartEndEventsPreprocessor()
+    pd_data = asev.apply(df, cols_schema=raw_data_schema)
 
 
-def test_SplitSessionsPreprocessor(frame):
+def _test_SplitSessionsPreprocessor(frame):
     pr = SplitSessionsPreprocessor(timeout=(1, 's'))
 
     print('Apply preprocessor directly to frame:')
     print(pr.apply(frame).to_dataframe().drop(columns=['action', 'client_id', 'event_type_index']), end='\n\n')
 
 
-def test_both_preprocessors(frame):
+def _test_both_preprocessors(frame):
     pr1 = AddStartEndEventsPreprocessor()
     pr2 = SplitSessionsPreprocessor(timeout=(1, 's'))
 
@@ -62,7 +75,7 @@ def test_both_preprocessors(frame):
     print(frame.to_dataframe().drop(columns=['action', 'client_id', 'event_type_index']), end='\n\n')
 
 
-def test():
+def _test():
     frame = create_frame()
     print("Frame before manipulations:")
     print(frame)
@@ -73,7 +86,7 @@ def test():
 
     # test_SplitSessionsPreprocessor(frame)
 
-    test_both_preprocessors(frame)
+    # test_both_preprocessors(frame)
 
 
-test()
+_test_AddStartEndEventsPreprocessor()

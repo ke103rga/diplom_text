@@ -5,7 +5,7 @@ from data_preprocessing import DataPreprocessor
 from eventframing.eventframe import EventFrame
 from eventframing.cols_schema import EventFrameColsSchema
 from eventframing.event_type import EventType
-from utils.TimeUnits import TimeUnits
+from utils.time_units import TimeUnits
 
 
 class SplitSessionsPreprocessor(DataPreprocessor):
@@ -26,14 +26,17 @@ class SplitSessionsPreprocessor(DataPreprocessor):
         self.split_events = split_events
 
     def apply(self, data: Union[pd.DataFrame, 'EventFrame'],
-              cols_schema: Optional[EventFrameColsSchema] = None) -> 'EventFrame':
+              cols_schema: Optional[EventFrameColsSchema] = None,
+              prepare: bool = True) -> 'EventFrame':
 
         super()._check_apply_params(data, cols_schema)
-        data, cols_schema = super()._get_data_and_cols_schema(data, cols_schema)
+        data, cols_schema = super()._get_data_and_cols_schema(data, cols_schema, prepare)
+
 
         if self.timeout is not None:
             split_data = self._split_by_timeout(data, cols_schema)
 
+        split_data = self._delete_synthetic_events_if_exists(split_data, cols_schema)
         split_data = self._add_synthetic_events(split_data, cols_schema)
         split_data = split_data.sort_values(by=[
             cols_schema.user_id,
@@ -48,9 +51,11 @@ class SplitSessionsPreprocessor(DataPreprocessor):
         dt_col = cols_schema.event_timestamp
         user_id_col = cols_schema.user_id
 
+        data = data.sort_values(by=[user_id_col, dt_col])
+
         data['time_from_last_event'] = data[dt_col] - data.groupby(user_id_col)[dt_col].shift()
-        data['new_session_start'] = data['time_from_last_event'] > self.timeout
-        data[self.session_id_col] = data[user_id_col].astype(str) + '_' + data['new_session_start'].cumsum().astype(str)
+        data['new_session_start'] = data['time_from_last_event'].isna() | (data['time_from_last_event'] > self.timeout)
+        data[self.session_id_col] = data[user_id_col].astype(str) + '_' + data.groupby(user_id_col)['new_session_start'].cumsum().astype(str)
 
         return data.drop(columns=['time_from_last_event', 'new_session_start'])
 
@@ -75,4 +80,11 @@ class SplitSessionsPreprocessor(DataPreprocessor):
 
         preprocessed_data = pd.concat([data, session_starts, session_ends])
         return preprocessed_data
+    
+    def _delete_synthetic_events_if_exists(self, data: pd.DataFrame, cols_schema: EventFrameColsSchema) -> pd.DataFrame:
+        event_type_col = cols_schema.event_type
+
+        evet_types_to_delete = [EventType.SESSION_START.value.name, EventType.SESSION_END.value.name]
+        
+        return data[~data[event_type_col].isin(evet_types_to_delete)]
 

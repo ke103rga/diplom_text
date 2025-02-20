@@ -1,4 +1,4 @@
-from typing import Literal, Union, List, Optional, Iterable, get_args
+from typing import Literal, Union, List, Optional, Iterable, get_args, Tuple
 import pandas as pd
 from plotly import graph_objects as go
 import plotly.express as px
@@ -13,6 +13,8 @@ FunnelTypes = Literal["open", "closed"]
 
 class Funnel:
     _funnel_data: pd.DataFrame
+    stages = List[str]
+    stages_names = List[str]
 
     def __init__(self):
         pass
@@ -21,7 +23,6 @@ class Funnel:
             self,
             funnel_type: FunnelTypes,
             data: Union[pd.DataFrame, 'EventFrame'],
-            cols_schema: Optional[EventFrameColsSchema],
             stages: List[Union[str, List[str]]],
             stages_names: Optional[List[str]],
             inside_session: bool,
@@ -31,12 +32,10 @@ class Funnel:
         if funnel_type not in get_args(FunnelTypes):
             raise ValueError(f'funnel_type should be one of {get_args(FunnelTypes)}')
 
-        if not (isinstance(data, EventFrame) or
-                (isinstance(data, pd.DataFrame) and isinstance(cols_schema, EventFrameColsSchema))):
-            raise ValueError('EventFrame or DataFrame with EventFrameColsSchema')
+        if not isinstance(data, EventFrame):
+            raise ValueError('only EventFrame')
 
-        if not len(set(stages)) == len(stages):
-            raise ValueError(f'All stages should be distinct')
+        self._check_repeated_stages(stages=stages)
 
         if stages_names:
             if not len(set(stages_names)) == len(stages_names):
@@ -46,10 +45,10 @@ class Funnel:
                 raise ValueError(f'Amount of Stages differ from amount of their names')
 
         if segments:
-            if self._segments_repeated_indexes(segments):
-                raise ValueError(f'Segments should not contain repeating elements')
+            # if self._segments_repeated_indexes(segments):
+            #     raise ValueError(f'Segments should not contain repeating elements')
 
-            if segments_names and not len(segments) == len(segments_names):
+            if segments_names is not None and not len(segments) == len(segments_names):
                 raise ValueError(f'Amount of segments differ from amount of their names')
 
     def _segments_repeated_indexes(self, segments):
@@ -61,45 +60,77 @@ class Funnel:
                 return False
             segment_idx = segment_idx.union(segment_set)
         return True
+    
+    def _check_repeated_stages(self, stages: List[Union[str, List[str]]]) -> None:
+        multiple_stages = []
+        all_stages = []
+        for stage in stages:
+            if isinstance(stage, list):
+                multiple_stages.append(stage)
+            elif isinstance(stage, str):
+                all_stages.append(stage)
+            else:
+                raise ValueError(f'Stages should be either str or list')
+        
+        for multiple_stage in multiple_stages:
+            for stage in multiple_stage:
+                if not isinstance(stage, str):
+                    raise ValueError(f'Stages should be either str or list of str')
+                all_stages.append(stage)
+          
+        if not len(set(all_stages)) == len(all_stages):
+            raise ValueError(f'All stages should be distinct')
+
 
     def _collapse_stages(self, data: pd.DataFrame, cols_schema: EventFrameColsSchema,
-                         stages: List[Union[str, List[str]]]) -> pd.DataFrame:
+                    stages: List[Union[str, List[str]]], stages_names: Optional[List[str]]
+                    ) -> Tuple[pd.DataFrame, List[str], List[str]]:
+        new_stages = []
+        multiple_stages = []
+        new_stages_names = []
 
-        multiple_stages = [stage for stage in stages if isinstance(stage, list)]
-        if len(multiple_stages) == 0:
-            return data
+        collapse_dict = dict()
+
+        for stage in stages:
+            if isinstance(stage, str):
+                new_stages.append(stage)
+                new_stages_names.append(stage)
+            else:
+                multiple_stages.append(stage)
+                new_stage_name = '__'.join(stage)
+                new_stages.append(new_stage_name)
+                new_stages_names.append(new_stage_name)
+                for sub_stage in stage:
+                    collapse_dict[sub_stage] = new_stage_name
+        
+        if stages_names is None:
+            stages_names = new_stages_names
 
         data_copy = data.copy()
         event_col = cols_schema.event_name
-        multiple_stages_names = [mult_stage[0] for mult_stage in multiple_stages]
+        data_copy[event_col] = data_copy[event_col].replace(collapse_dict, inplace=False)
 
-        collapse_dict = dict()
-        for multiple_stage, multiple_stage_name in zip(multiple_stages, multiple_stages_names):
-            for stage in multiple_stage:
-                collapse_dict[stage] = multiple_stage_name
-
-        data_copy[event_col].replace(collapse_dict, inpace=True)
-
-        return data_copy
+        return data_copy, new_stages, stages_names 
 
     def fit(
             self,
-            funnel_type: FunnelTypes,
-            data: Union[pd.DataFrame, 'EventFrame'],
-            cols_schema: Optional[EventFrameColsSchema],
+            data: EventFrame,
             stages: List[Union[str, List[str]]],
+            funnel_type: FunnelTypes = 'open',
             stages_names: Optional[List[str]] = None,
-            inside_session: bool = True,
+            inside_session: bool = False,
             segments: Optional[Iterable] = None,
             segments_names: Optional[Iterable] = None
     ) -> pd.DataFrame:
-        self._check_fit_params(funnel_type, data, cols_schema, stages,
-                               stages_names, inside_session, segments, segments_names)
-        self._collapse_stages(data, cols_schema, stages)
-
-        if isinstance(data, EventFrame):
-            data = data.data.copy()
-            cols_schema = data.cols_schema
+        self._check_fit_params(funnel_type, data, stages, stages_names, 
+                               inside_session, segments, segments_names)
+        
+        cols_schema = data.cols_schema
+        data = data.data.copy()
+        
+        data, stages, stages_names  = self._collapse_stages(data, cols_schema, stages, stages_names)
+        self.stages = stages
+        self.stages_names = stages_names
 
         user_id_col = cols_schema.user_id
         event_col = cols_schema.event_name
@@ -108,6 +139,8 @@ class Funnel:
 
         if segments is None:
             segments, segments_names = [data.index], ['all_users']
+        elif segments_names is None:
+            segments_names = [f'segment_{i}' for i in range(len(segments))]
 
         for segment, segment_name in zip(segments, segments_names):
             segment_data = data.loc[segment]
@@ -124,18 +157,17 @@ class Funnel:
             # Create the dictionary that defines the order for sorting
             sorter_index = dict(zip(stages, range(len(stages))))
             segment_funnel_data['stage_rank'] = segment_funnel_data['stage'].map(sorter_index)
-            segment_funnel_data.sort_values(by='stage_rank', ascending=True, inplace=True)
-            segment_funnel_data.drop(columns=['stage_rank'], inplace=True)
+            segment_funnel_data = segment_funnel_data.sort_values(by='stage_rank', ascending=True)
+            segment_funnel_data = segment_funnel_data.drop(columns=['stage_rank'])
 
             segment_funnel_data['segment'] = segment_name
 
             funnel_data = pd.concat([funnel_data, segment_funnel_data])
 
-        if stages_names is not None:
-            funnel_data['stage'].replace(
-                {stage: stage_name for stage, stage_name in zip(stages, stages_names)},
-                inplace=True
+        funnel_data['stage'] = funnel_data['stage'].replace(
+                {stage: stage_name for stage, stage_name in zip(stages, stages_names)}
             )
+        
         funnel_data['users_count'] = funnel_data['users_count'].astype(int)
         self._funnel_data = funnel_data
         return funnel_data
@@ -159,10 +191,10 @@ class Funnel:
             aggfunc='nunique'
         ).reset_index()
 
-        funnel_data.rename(columns={
+        funnel_data = funnel_data.rename(columns={
             event_col: 'stage',
             user_id_col: 'users_count'
-        }, inplace=True)
+        })
 
         return funnel_data
 
@@ -246,42 +278,3 @@ class Funnel:
 
         fig.show()
 
-
-
-
-def create_test_data():
-    data = pd.DataFrame({
-        'user_id': [1, 1, 1, 2, 2, 2, 3, 3, 3, 3],
-        'dt': [1, 1, 1, 2, 2, 2, 3, 3, 3, 3],
-        'session_id': [1, 1, 1, 2, 2, 3, 3, 3, 3, 3],
-        'event_name': ['A', 'B', 'C', 'A', 'C', 'D', 'A', 'B', 'D',  'C']
-    })
-    cols_schema = EventFrameColsSchema({
-        'user_id': 'user_id',
-        'event_timestamp': 'dt',
-        'event_name': 'event_name',
-        'session_id': 'session_id'
-    })
-    return EventFrame(data, cols_schema)
-
-
-def test():
-    funnel = Funnel()
-    eventframe = create_test_data()
-    data, cols_schema = eventframe.to_dataframe(), eventframe.cols_schema
-
-    print(data)
-
-    funnel = Funnel()
-    funnel.fit(
-        funnel_type='open',
-        data=data,
-        cols_schema=cols_schema,
-        stages=['A', 'B', 'C'],
-        inside_session=False,
-    )
-    print(funnel.values)
-    funnel.plot()
-
-
-# test()

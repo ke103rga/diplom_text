@@ -28,6 +28,7 @@ class EventFrameColsSchema:
             self._session_id = cols_schema._session_id
             return
 
+        # TODO: Show list of missing necessary cols in schema
         if not set(self.__necessary_cols).issubset(set(cols_schema.keys())):
             raise ValueError('Necessary cols')
 

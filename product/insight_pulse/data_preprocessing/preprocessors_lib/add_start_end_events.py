@@ -11,10 +11,11 @@ class AddStartEndEventsPreprocessor(DataPreprocessor):
     def __init__(self):
         pass
 
-    def apply(self,data: Union[pd.DataFrame, 'EventFrame'],
-              cols_schema: Optional[EventFrameColsSchema] = None) -> 'EventFrame':
+    def apply(self, data: Union[pd.DataFrame, 'EventFrame'],
+              cols_schema: Optional[EventFrameColsSchema] = None,
+              prepare: bool = True) -> 'EventFrame':
         super()._check_apply_params(data, cols_schema)
-        data, cols_schema = super()._get_data_and_cols_schema(data, cols_schema)
+        data, cols_schema = super()._get_data_and_cols_schema(data, cols_schema, prepare)
 
         dt_col = cols_schema.event_timestamp
         event_col = cols_schema.event_name
@@ -24,6 +25,7 @@ class AddStartEndEventsPreprocessor(DataPreprocessor):
         event_id_col = cols_schema.event_id
 
         data = data.sort_values(by=[user_id_col, dt_col])
+        data = self._delete_synthetic_events_if_exists(data, cols_schema)
 
         path_starts = data.groupby([user_id_col]).head(1).copy()
         path_ends = data.groupby([user_id_col]).tail(1).copy()
@@ -44,3 +46,10 @@ class AddStartEndEventsPreprocessor(DataPreprocessor):
 
         # Возвращаем новый экземпляр EventFrame с обновленными данными
         return EventFrame(new_data, cols_schema)
+    
+    def _delete_synthetic_events_if_exists(self, data: pd.DataFrame, cols_schema: EventFrameColsSchema) -> pd.DataFrame:
+        event_type_col = cols_schema.event_type
+
+        evet_types_to_delete = [EventType.PATH_START.value.name, EventType.PATH_END.value.name]
+        
+        return data[~data[event_type_col].isin(evet_types_to_delete)]

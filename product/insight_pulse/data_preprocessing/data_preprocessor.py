@@ -20,21 +20,32 @@ class DataPreprocessor(ABC):
 
     @abstractmethod
     def apply(self, data: Union[pd.DataFrame, 'EventFrame'],
-              cols_schema: Optional[EventFrameColsSchema] = None) -> 'EventFrame':
+              cols_schema: Optional[EventFrameColsSchema] = None, 
+              prepare: bool = True) -> 'EventFrame':
         """
         Применяет некоторое преобразование к объекту EventFrame.
         """
         pass
 
-    def _check_apply_params(self, data: Union[pd.DataFrame, 'EventFrame'],
-                            cols_schema: Optional[EventFrameColsSchema]) -> None:
-        if not (isinstance(data, EventFrame) or
-                (isinstance(data, pd.DataFrame) and isinstance(cols_schema, EventFrameColsSchema))):
-            raise ValueError('EventFrame or DataFrame with EventFrameColsSchema')
+    #TODO: delete cols_schema param from methods below
 
-    def _get_data_and_cols_schema(self, data: Union[pd.DataFrame, 'EventFrame'],
-                            cols_schema: Optional[EventFrameColsSchema]) -> Tuple[pd.DataFrame, EventFrameColsSchema]:
+    def _check_apply_params(self, data: EventFrame,
+                            cols_schema: Union[Dict[str, str], EventFrameColsSchema]) -> None:
+        if not isinstance(data, EventFrame):
+            raise ValueError('data should be EventFrame')
+            # if isinstance(data, pd.DataFrame):
+            #     if cols_schema is None:
+            #         raise ValueError('You should pass cols schema with data in DataFrame')
+            #     elif not isinstance(cols_schema, EventFrameColsSchema) and not isinstance(cols_schema, dict):
+            #         raise ValueError('cols_schema should be EventFrameColsSchema or dict')
+            # else:
+            #     raise ValueError('EventFrame or DataFrame with EventFrameColsSchema')
+
+    def _get_data_and_cols_schema(self, data: EventFrame,
+                            cols_schema: Union[Dict[str, str], EventFrameColsSchema],
+                            prepare: bool) -> Tuple[pd.DataFrame, EventFrameColsSchema]:
         if isinstance(data, EventFrame):
-            return data.data, data.cols_schema
+            return data.data.copy(), data.cols_schema
         else:
-            return data, cols_schema
+            ef = EventFrame(data, cols_schema, prepare=prepare)
+            return ef.to_dataframe(), ef.cols_schema
