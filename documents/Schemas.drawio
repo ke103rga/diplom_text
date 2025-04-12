@@ -1,11 +1,11 @@
-<mxfile host="Electron" modified="2025-02-18T14:35:00.515Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.0.4 Chrome/120.0.6099.109 Electron/28.1.0 Safari/537.36" etag="JVUOAbXUG73O6btJPvRK" version="24.0.4" type="device" pages="2">
+<mxfile host="Electron" modified="2025-04-05T12:49:16.673Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.0.4 Chrome/120.0.6099.109 Electron/28.1.0 Safari/537.36" etag="cmDhirB_i9-pEYriegJ8" version="24.0.4" type="device" pages="2">
   <diagram name="Варианты использования" id="MI1J2-CqYYGbUAztLc2I">
-    <mxGraphModel dx="4513" dy="1986" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="5300" dy="2458" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="r9iq1MVezSwC2UUuFci2-1" value="" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="131" y="136" width="910" height="590" as="geometry" />
+          <mxGeometry x="138" y="171" width="910" height="590" as="geometry" />
         </mxCell>
         <mxCell id="r9iq1MVezSwC2UUuFci2-33" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;startArrow=classic;startFill=1;endArrow=none;endFill=0;" parent="1" source="DE8UUsNk8c3EbBQs2PeT-8" target="r9iq1MVezSwC2UUuFci2-12" edge="1">
           <mxGeometry relative="1" as="geometry">
@@ -455,31 +455,31 @@
         <mxCell id="4qpmDBtxwULnOelJLCyD-1" value="ClusteringDataPreprocessor" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="-1971" y="-960" width="385" height="324" as="geometry" />
         </mxCell>
-        <mxCell id="mvzTGvsU72VtTsFNo2v_-4" value="+ cols_schema: EventFrameColsSchema" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="4qpmDBtxwULnOelJLCyD-1">
+        <mxCell id="mvzTGvsU72VtTsFNo2v_-4" value="+ cols_schema: EventFrameColsSchema" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="4qpmDBtxwULnOelJLCyD-1" vertex="1">
           <mxGeometry y="26" width="385" height="27" as="geometry" />
         </mxCell>
         <mxCell id="4qpmDBtxwULnOelJLCyD-4" value="+ data: pd.DataFrame" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="4qpmDBtxwULnOelJLCyD-1" vertex="1">
           <mxGeometry y="53" width="385" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="mvzTGvsU72VtTsFNo2v_-5" value="+ raw_cluster_matrix: pd.DataFrame" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="4qpmDBtxwULnOelJLCyD-1">
+        <mxCell id="mvzTGvsU72VtTsFNo2v_-5" value="+ raw_cluster_matrix: pd.DataFrame" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="4qpmDBtxwULnOelJLCyD-1" vertex="1">
           <mxGeometry y="80" width="385" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="mvzTGvsU72VtTsFNo2v_-6" value="+&amp;nbsp;cluster_matrix: pd.DataFrame" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="4qpmDBtxwULnOelJLCyD-1">
+        <mxCell id="mvzTGvsU72VtTsFNo2v_-6" value="+&amp;nbsp;cluster_matrix: pd.DataFrame" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="4qpmDBtxwULnOelJLCyD-1" vertex="1">
           <mxGeometry y="107" width="385" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="mvzTGvsU72VtTsFNo2v_-7" value="+ data_preprocessor: Pipeline" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="4qpmDBtxwULnOelJLCyD-1">
+        <mxCell id="mvzTGvsU72VtTsFNo2v_-7" value="+ data_preprocessor: Pipeline" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="4qpmDBtxwULnOelJLCyD-1" vertex="1">
           <mxGeometry y="134" width="385" height="27" as="geometry" />
         </mxCell>
         <mxCell id="4qpmDBtxwULnOelJLCyD-2" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="4qpmDBtxwULnOelJLCyD-1" vertex="1">
           <mxGeometry y="161" width="385" height="8" as="geometry" />
         </mxCell>
-        <mxCell id="mvzTGvsU72VtTsFNo2v_-8" value="+ create_cluster_matrix(&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;data: EventFrame,&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;add_session_stats: bool,&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;add_path_stats: bool , preprocess: bool&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;): pd.DataFrame&lt;/div&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="4qpmDBtxwULnOelJLCyD-1">
+        <mxCell id="mvzTGvsU72VtTsFNo2v_-8" value="+ create_cluster_matrix(&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;data: EventFrame,&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;add_session_stats: bool,&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;add_path_stats: bool , preprocess: bool&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;): pd.DataFrame&lt;/div&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="4qpmDBtxwULnOelJLCyD-1" vertex="1">
           <mxGeometry y="169" width="385" height="78" as="geometry" />
         </mxCell>
-        <mxCell id="mvzTGvsU72VtTsFNo2v_-9" value="- _preprocess_raw_cluster_matrix(&lt;span style=&quot;background-color: initial;&quot;&gt;): None&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="4qpmDBtxwULnOelJLCyD-1">
+        <mxCell id="mvzTGvsU72VtTsFNo2v_-9" value="- _preprocess_raw_cluster_matrix(&lt;span style=&quot;background-color: initial;&quot;&gt;): None&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="4qpmDBtxwULnOelJLCyD-1" vertex="1">
           <mxGeometry y="247" width="385" height="41" as="geometry" />
         </mxCell>
-        <mxCell id="mvzTGvsU72VtTsFNo2v_-10" value="+ inverse_transform(&lt;span style=&quot;background-color: initial;&quot;&gt;data: pd.DataFrame&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;): pd.DataFrame&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="4qpmDBtxwULnOelJLCyD-1">
+        <mxCell id="mvzTGvsU72VtTsFNo2v_-10" value="+ inverse_transform(&lt;span style=&quot;background-color: initial;&quot;&gt;data: pd.DataFrame&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;): pd.DataFrame&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="4qpmDBtxwULnOelJLCyD-1" vertex="1">
           <mxGeometry y="288" width="385" height="36" as="geometry" />
         </mxCell>
         <mxCell id="4qpmDBtxwULnOelJLCyD-7" value="SplitSessionsPreprocessor" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
@@ -595,55 +595,114 @@
         <mxCell id="4qpmDBtxwULnOelJLCyD-45" value="&lt;i&gt;- &lt;/i&gt;_get_data_and_cols_schema(data: DataFrame,&lt;br&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;cols_schema: EventFrameColsSchema&lt;/span&gt;):&amp;nbsp;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;Tuple[DataFrame, EventFrameColsSchema]&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="4qpmDBtxwULnOelJLCyD-41" vertex="1">
           <mxGeometry y="126" width="385" height="66" as="geometry" />
         </mxCell>
-        <mxCell id="mvzTGvsU72VtTsFNo2v_-11" value="&lt;i&gt;ClusteringEstimator&lt;/i&gt;" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="mvzTGvsU72VtTsFNo2v_-11" value="&lt;i&gt;ClusteringEstimator&lt;/i&gt;" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="-2420" y="-857" width="385" height="220" as="geometry" />
         </mxCell>
-        <mxCell id="mvzTGvsU72VtTsFNo2v_-14" value="&lt;i&gt;+ n_clusters: int&lt;/i&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="mvzTGvsU72VtTsFNo2v_-11">
+        <mxCell id="mvzTGvsU72VtTsFNo2v_-14" value="&lt;i&gt;+ n_clusters: int&lt;/i&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="mvzTGvsU72VtTsFNo2v_-11" vertex="1">
           <mxGeometry y="26" width="385" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="mvzTGvsU72VtTsFNo2v_-17" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="mvzTGvsU72VtTsFNo2v_-11">
+        <mxCell id="mvzTGvsU72VtTsFNo2v_-17" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="mvzTGvsU72VtTsFNo2v_-11" vertex="1">
           <mxGeometry y="53" width="385" height="8" as="geometry" />
         </mxCell>
-        <mxCell id="mvzTGvsU72VtTsFNo2v_-18" value="&lt;i&gt;+ fit(X: pd.DataFrame&lt;/i&gt;&lt;i style=&quot;background-color: initial;&quot;&gt;): pd.DataFrame&lt;/i&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="mvzTGvsU72VtTsFNo2v_-11">
+        <mxCell id="mvzTGvsU72VtTsFNo2v_-18" value="&lt;i&gt;+ fit(X: pd.DataFrame&lt;/i&gt;&lt;i style=&quot;background-color: initial;&quot;&gt;): pd.DataFrame&lt;/i&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="mvzTGvsU72VtTsFNo2v_-11" vertex="1">
           <mxGeometry y="61" width="385" height="29" as="geometry" />
         </mxCell>
-        <mxCell id="mvzTGvsU72VtTsFNo2v_-21" value="&lt;i&gt;+ predict(X: pd.DataFrame&lt;/i&gt;&lt;i style=&quot;background-color: initial;&quot;&gt;): pd.DataFrame&lt;/i&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="mvzTGvsU72VtTsFNo2v_-11">
+        <mxCell id="mvzTGvsU72VtTsFNo2v_-21" value="&lt;i&gt;+ predict(X: pd.DataFrame&lt;/i&gt;&lt;i style=&quot;background-color: initial;&quot;&gt;): pd.DataFrame&lt;/i&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="mvzTGvsU72VtTsFNo2v_-11" vertex="1">
           <mxGeometry y="90" width="385" height="29" as="geometry" />
         </mxCell>
-        <mxCell id="mvzTGvsU72VtTsFNo2v_-22" value="&lt;i&gt;+ fit_predict(X: pd.DataFrame&lt;/i&gt;&lt;i style=&quot;background-color: initial;&quot;&gt;): pd.DataFrame&lt;/i&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="mvzTGvsU72VtTsFNo2v_-11">
+        <mxCell id="mvzTGvsU72VtTsFNo2v_-22" value="&lt;i&gt;+ fit_predict(X: pd.DataFrame&lt;/i&gt;&lt;i style=&quot;background-color: initial;&quot;&gt;): pd.DataFrame&lt;/i&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="mvzTGvsU72VtTsFNo2v_-11" vertex="1">
           <mxGeometry y="119" width="385" height="29" as="geometry" />
         </mxCell>
-        <mxCell id="mvzTGvsU72VtTsFNo2v_-19" value="+ plot_clusters_counts(labels: List&lt;span style=&quot;background-color: initial;&quot;&gt;): None&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="mvzTGvsU72VtTsFNo2v_-11">
+        <mxCell id="mvzTGvsU72VtTsFNo2v_-19" value="+ plot_clusters_counts(labels: List&lt;span style=&quot;background-color: initial;&quot;&gt;): None&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="mvzTGvsU72VtTsFNo2v_-11" vertex="1">
           <mxGeometry y="148" width="385" height="31" as="geometry" />
         </mxCell>
-        <mxCell id="mvzTGvsU72VtTsFNo2v_-23" value="+ plot_clusters_with_tsne(data: pd.DataFrame, labels: List&lt;span style=&quot;background-color: initial;&quot;&gt;): None&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="mvzTGvsU72VtTsFNo2v_-11">
+        <mxCell id="mvzTGvsU72VtTsFNo2v_-23" value="+ plot_clusters_with_tsne(data: pd.DataFrame, labels: List&lt;span style=&quot;background-color: initial;&quot;&gt;): None&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="mvzTGvsU72VtTsFNo2v_-11" vertex="1">
           <mxGeometry y="179" width="385" height="41" as="geometry" />
         </mxCell>
-        <mxCell id="mvzTGvsU72VtTsFNo2v_-36" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.46;entryY=1.003;entryDx=0;entryDy=0;entryPerimeter=0;endArrow=block;endFill=0;" edge="1" parent="1" source="mvzTGvsU72VtTsFNo2v_-24" target="mvzTGvsU72VtTsFNo2v_-23">
+        <mxCell id="mvzTGvsU72VtTsFNo2v_-36" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.46;entryY=1.003;entryDx=0;entryDy=0;entryPerimeter=0;endArrow=block;endFill=0;" parent="1" source="mvzTGvsU72VtTsFNo2v_-24" target="mvzTGvsU72VtTsFNo2v_-23" edge="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="-2241" y="-619" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="mvzTGvsU72VtTsFNo2v_-24" value="KMeansEstimator" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="mvzTGvsU72VtTsFNo2v_-24" value="KMeansEstimator" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="-2532" y="-535" width="324" height="110" as="geometry" />
         </mxCell>
-        <mxCell id="mvzTGvsU72VtTsFNo2v_-26" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="mvzTGvsU72VtTsFNo2v_-24">
+        <mxCell id="mvzTGvsU72VtTsFNo2v_-26" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="mvzTGvsU72VtTsFNo2v_-24" vertex="1">
           <mxGeometry y="26" width="324" height="8" as="geometry" />
         </mxCell>
-        <mxCell id="mvzTGvsU72VtTsFNo2v_-27" value="+ choose_optimal_n_clusters(n_clusters_range: List, X: &lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;pd.DataFrame&lt;span style=&quot;background-color: initial;&quot;&gt;): pd.DataFrame&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="mvzTGvsU72VtTsFNo2v_-24">
+        <mxCell id="mvzTGvsU72VtTsFNo2v_-27" value="+ choose_optimal_n_clusters(n_clusters_range: List, X: &lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;pd.DataFrame&lt;span style=&quot;background-color: initial;&quot;&gt;): pd.DataFrame&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="mvzTGvsU72VtTsFNo2v_-24" vertex="1">
           <mxGeometry y="34" width="324" height="47" as="geometry" />
         </mxCell>
-        <mxCell id="mvzTGvsU72VtTsFNo2v_-28" value="+ describe_by_centroids(&lt;span style=&quot;background-color: initial;&quot;&gt;): pd.DataFrame&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="mvzTGvsU72VtTsFNo2v_-24">
+        <mxCell id="mvzTGvsU72VtTsFNo2v_-28" value="+ describe_by_centroids(&lt;span style=&quot;background-color: initial;&quot;&gt;): pd.DataFrame&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="mvzTGvsU72VtTsFNo2v_-24" vertex="1">
           <mxGeometry y="81" width="324" height="29" as="geometry" />
         </mxCell>
-        <mxCell id="mvzTGvsU72VtTsFNo2v_-32" value="DBScanEstimator" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="mvzTGvsU72VtTsFNo2v_-32" value="DBScanEstimator" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="-2162" y="-535" width="232" height="34" as="geometry" />
         </mxCell>
-        <mxCell id="mvzTGvsU72VtTsFNo2v_-33" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="mvzTGvsU72VtTsFNo2v_-32">
+        <mxCell id="mvzTGvsU72VtTsFNo2v_-33" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="mvzTGvsU72VtTsFNo2v_-32" vertex="1">
           <mxGeometry y="26" width="232" height="8" as="geometry" />
         </mxCell>
-        <mxCell id="mvzTGvsU72VtTsFNo2v_-37" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.46;entryY=0.994;entryDx=0;entryDy=0;entryPerimeter=0;endArrow=block;endFill=0;" edge="1" parent="1" source="mvzTGvsU72VtTsFNo2v_-32" target="mvzTGvsU72VtTsFNo2v_-23">
+        <mxCell id="mvzTGvsU72VtTsFNo2v_-37" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.46;entryY=0.994;entryDx=0;entryDy=0;entryPerimeter=0;endArrow=block;endFill=0;" parent="1" source="mvzTGvsU72VtTsFNo2v_-32" target="mvzTGvsU72VtTsFNo2v_-23" edge="1">
           <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ycj7WhaTSFfPlYOKpmjV-1" value="" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="155" y="918" width="734" height="545" as="geometry" />
+        </mxCell>
+        <mxCell id="ycj7WhaTSFfPlYOKpmjV-2" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;startArrow=classic;startFill=1;endArrow=none;endFill=0;" parent="1" source="ycj7WhaTSFfPlYOKpmjV-30" target="ycj7WhaTSFfPlYOKpmjV-7" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="503.9999999999998" y="1142" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ycj7WhaTSFfPlYOKpmjV-3" value="Extends" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=15;" parent="ycj7WhaTSFfPlYOKpmjV-2" vertex="1" connectable="0">
+          <mxGeometry x="0.0003" y="3" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ycj7WhaTSFfPlYOKpmjV-7" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;Изучение динамики&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;fontSize=18;" parent="1" vertex="1">
+          <mxGeometry x="625" y="1157" width="244" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ycj7WhaTSFfPlYOKpmjV-11" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="ycj7WhaTSFfPlYOKpmjV-17" target="ycj7WhaTSFfPlYOKpmjV-28" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="254" y="962" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ycj7WhaTSFfPlYOKpmjV-12" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="ycj7WhaTSFfPlYOKpmjV-17" target="ycj7WhaTSFfPlYOKpmjV-30" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="243.5" y="1142" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ycj7WhaTSFfPlYOKpmjV-14" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="ycj7WhaTSFfPlYOKpmjV-17" target="ycj7WhaTSFfPlYOKpmjV-32" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="240.9999999999999" y="1457" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ycj7WhaTSFfPlYOKpmjV-15" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="ycj7WhaTSFfPlYOKpmjV-17" target="ycj7WhaTSFfPlYOKpmjV-29" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="254" y="1052" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ycj7WhaTSFfPlYOKpmjV-16" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="ycj7WhaTSFfPlYOKpmjV-17" target="ycj7WhaTSFfPlYOKpmjV-31" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="240.99999999999886" y="1367" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ycj7WhaTSFfPlYOKpmjV-17" value="Пользователь" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" parent="1" vertex="1">
+          <mxGeometry y="1157" width="30" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ycj7WhaTSFfPlYOKpmjV-28" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;Подготовка данных&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;fontSize=18;" parent="1" vertex="1">
+          <mxGeometry x="201" y="950" width="264" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ycj7WhaTSFfPlYOKpmjV-29" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;Сегментация пользователей&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;fontSize=18;" parent="1" vertex="1">
+          <mxGeometry x="476" y="1036" width="264" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ycj7WhaTSFfPlYOKpmjV-30" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;Анализ продуктовых метрик&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;fontSize=18;" parent="1" vertex="1">
+          <mxGeometry x="226" y="1155.5" width="264" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ycj7WhaTSFfPlYOKpmjV-31" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;Когортный анализ&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;fontSize=18;" parent="1" vertex="1">
+          <mxGeometry x="478" y="1290" width="264" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ycj7WhaTSFfPlYOKpmjV-32" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;Анализ продуктовых воронок&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;fontSize=18;" parent="1" vertex="1">
+          <mxGeometry x="226" y="1346" width="264" height="70" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

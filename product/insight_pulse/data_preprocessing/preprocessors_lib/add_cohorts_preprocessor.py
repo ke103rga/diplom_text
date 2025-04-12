@@ -20,6 +20,8 @@ class AddCohortsPreprocessor(DataPreprocessor):
             raise ValueError(f'Invalid cohort period: {cohort_period}')
             
         self.cohort_period = cohort_period
+        # TODO: set cohort_group_col_name
+        self.cohort_group_col_name = 'cohort_group'
 
     def apply(self, data: Union[pd.DataFrame, 'EventFrame'],
               cols_schema: Optional[EventFrameColsSchema] = None, prepare: bool = False) -> 'EventFrame':
@@ -28,10 +30,12 @@ class AddCohortsPreprocessor(DataPreprocessor):
         super()._check_apply_params(data, cols_schema)
         data, cols_schema = super()._get_data_and_cols_schema(data, cols_schema, prepare)
 
+        data = self._delete_synthetic_cols_if_exists(data, cols_schema)
         data = self._extract_cohort(data, cols_schema, self.cohort_period)
         data = self._add_cohort_period(data, cols_schema, self.cohort_period)
+        cols_schema.cohort_group = self.cohort_group_col_name
 
-        return EventFrame(data, cols_schema)
+        return EventFrame(data, cols_schema, prepare=False)
     
     def _extract_cohort(self, data: pd.DataFrame,
               cols_schema: EventFrameColsSchema, 
@@ -112,4 +116,10 @@ class AddCohortsPreprocessor(DataPreprocessor):
             return data[col2].dt.year - data[col1].dt.year  # Разница в годах
         else:
             raise ValueError(f'Unknown cohort period: {cohort_period}')
+        
+    def _delete_synthetic_cols_if_exists(self, data: pd.DataFrame, cols_schema: EventFrameColsSchema) -> pd.DataFrame:
+        cols_to_drop = [self.cohort_group_col_name, 'cohort_time_unit', 'cohort_period']
+        cols_to_drop = set(cols_to_drop).intersection(data.columns)
+        
+        return data.drop(columns=cols_to_drop)
             

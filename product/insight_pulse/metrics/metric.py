@@ -66,56 +66,129 @@ class _Metric(ABC):
         query = query[:-3]
         return data.query(query)
     
-    @staticmethod
-    def _get_data_and_cols_schema(data: Union[pd.DataFrame, 'EventFrame'],
-                            cols_schema: Union[Dict[str, str], 'EventFrameColsSchema'],
-                            strict: bool = False) -> Tuple[Union[pd.DataFrame, 'EventFrame'], Union[Dict[str, str], 'EventFrameColsSchema']]:
+    # @staticmethod
+    def _get_data(self, data: Union[pd.DataFrame, 'EventFrame']) -> pd.DataFrame:
+        
         if isinstance(data, EventFrame):
-            return data.data.copy(), data.cols_schema
-        elif cols_schema is None:
-            if strict:
-                raise ValueError("cols_schema is None")
-            else:
-                return data.copy(), None
-        else:
-            return data.copy(), EventFrameColsSchema(cols_schema)
+            return data.data.copy()
+        if isinstance(data, pd.DataFrame):
+            return data.copy()
+        
+        raise TypeError("data must be pd.DataFrame or EventFrame")
         
 
 class MetricKPI(_Metric):
     def __init__(self, formula: Callable[[Union[pd.DataFrame, EventFrame], Optional[EventFrameColsSchema], dict], float], 
-                 name: str, description: str):
+                 name: str, description: Optional[str] = None):
         super().__init__(formula, name, description)
 
-    def compute_single_value(self, data: Union[pd.DataFrame, 'EventFrame'], cols_schema: Optional[EventFrameColsSchema] = None, **kwargs) -> float:
-        data, cols_schema = super()._get_data_and_cols_schema(data, cols_schema, strict=False)
-        print(data)
-        return self.formula(data, **kwargs)
+    def _get_data_pivot_template(self, data: pd.DataFrame, hue_cols: List[str]) -> pd.DataFrame:
+        unique_values = [data[col].unique() for col in hue_cols]
+            
+        # Создаем мультииндекс, представляющий все комбинации
+        index = pd.MultiIndex.from_product(unique_values, names=hue_cols)
+        
+        # Создаем DataFrame с этим мультииндексом
+        pivot_template = pd.DataFrame(index=index).reset_index()
+        return pivot_template
+        
+        
+    def compute_single_value(self, data: Union[pd.DataFrame, 'EventFrame'], 
+                             formula_kwargs: Optional[Dict] = None) -> float:
+        data = super()._get_data(data)
+        if formula_kwargs is None:
+            formula_kwargs = dict()
+        return self.formula(data, **formula_kwargs)
     
-    def compute_splitted_values(self, data: Union[pd.DataFrame, 'EventFrame'],  hue_cols: Union[str, List[str]], 
-                                cols_schema: Optional[EventFrameColsSchema] = None, **kwargs) -> pd.DataFrame:
-        data, cols_schema = super()._get_data_and_cols_schema(data, cols_schema, strict=False)
+    def compute_splitted_values(self, data: Union[pd.DataFrame, 'EventFrame'],  
+                                hue_cols: Optional[Union[str, List[str]]] = None, 
+                                formula_kwargs: Optional[Dict] = None,
+                                fillna_value: float = 0) -> pd.DataFrame:
+        data = super()._get_data(data)
+        if formula_kwargs is None:
+            formula_kwargs = dict()
 
-        if len(hue_cols) == 0 or hue_cols is None:
-            return self.compute_single_value(data, cols_schema, **kwargs)
+        if hue_cols is None or len(hue_cols) == 0:
+            return self.compute_single_value(data, formula_kwargs)
+        
+        if isinstance(hue_cols, str):
+            hue_cols = [hue_cols]
+
+        result = data.groupby(hue_cols)\
+            .apply(lambda group_data: self.formula(group_data, **formula_kwargs), include_groups=False)\
+            .reset_index().rename(columns={0: self.name})
+        
+        pivot_template = self._get_data_pivot_template(data, hue_cols)
+    
+        # return data_date_range
+        result = pd.merge(
+            pivot_template,
+            result,
+            on=hue_cols,
+            how='left'
+        )
+        result[self.name] = result[self.name].fillna(fillna_value)
+
+        return result
+        
             
         combinations = self.get_unique_combinations(data, hue_cols)
         result = []
         for combo in combinations:
             combo_desc = combo.copy()
-            combo_desc.update({self.name: self.formula(self.filter_data_frame(data, combo), cols_schema, **kwargs)})
+            combo_formula_result = self.formula(self.filter_data_frame(data, combo), **formula_kwargs)
+            combo_desc.update({self.name: combo_formula_result})
             result.append(combo_desc)
             
         return pd.DataFrame(result)
+    
+
+class MetricDinamicComputeParams():
+    def __init__(self, data: Union[pd.DataFrame, 'EventFrame'],
+                period: Union[str, TimeUnitPeriod],
+                hue_cols: Union[str, List[str]], 
+                dt_col: str,
+                fillna_value: float, 
+                formula_kwargs: Optional[Dict]) -> None:
+        
+        self.data, self.dt_col = self._get_data_and_dt_col(data, dt_col)
+
+        if isinstance(period, str):
+            period = TimeUnitPeriod(period)
+        if formula_kwargs is None:
+            formula_kwargs = dict()
+
+        self.period = period
+        self.period_name = period.alias
+        self.hue_cols = hue_cols
+        self.fillna_value = fillna_value
+        self.formula_kwargs = formula_kwargs
+        
+    def _get_data_and_dt_col(self,
+                            data: Union[pd.DataFrame, 'EventFrame'],
+                            dt_col: Optional[str]) -> Tuple[pd.DataFrame, str]:
+        
+        if isinstance(data, EventFrame):
+            dt_col = data.cols_schema.event_timestamp
+            data = data.data.copy()
+        elif isinstance(data, pd.DataFrame):
+            if dt_col is None:
+                raise ValueError('It\'s necessary to specify "dt_col" if data is pd.DataFrame')
+        else:
+            raise TypeError("data must be pd.DataFrame or EventFrame")
+        
+        return data, dt_col
     
 
 class MetricDinamic(_Metric):
     def __init__(self, formula: Callable[[Union[pd.DataFrame, EventFrame], Optional[EventFrameColsSchema], dict], float], 
                  name: str, description: str = ''):
         super().__init__(formula, name, description)
+        self.compute_params: Optional[MetricDinamicComputeParams] = None            
 
-    def _get_data_pivot_template(self, data: pd.DataFrame, cols_schema: EventFrameColsSchema, 
+    def _get_data_pivot_template(self, data: pd.DataFrame, dt_col: str, 
                                  period: TimeUnitPeriod, hue_cols: List[str]) -> pd.DataFrame:
-        dt_col = cols_schema.event_timestamp
+        # dt_col = cols_schema.event_timestamp
         min_date, max_date = data[dt_col].min(), data[dt_col].max()
         pivot_template = period.generte_monotic_time_range(min_date, max_date)
         if len(hue_cols) > 0:
@@ -131,45 +204,57 @@ class MetricDinamic(_Metric):
     def compute(self, data: Union[pd.DataFrame, 'EventFrame'],
                 period: Union[str, TimeUnitPeriod] = 'D',
                 hue_cols: Union[str, List[str]] = None, 
-                cols_schema: Union[Dict[str, str], 'EventFrameColsSchema'] = None, 
-                fillna_value: float = 0, **kwargs) -> pd.DataFrame:
+                dt_col: str = None,
+                fillna_value: float = 0, 
+                formula_kwargs: Optional[Dict] = None) -> pd.DataFrame:
+        self.compute_params = MetricDinamicComputeParams(data, period, hue_cols, dt_col, fillna_value, formula_kwargs)
         
-        data, cols_schema = super()._get_data_and_cols_schema(data, cols_schema)
-
-        if isinstance(period, str):
-            period = TimeUnitPeriod(period)
-        period_name = period.alias
-        dt_col = cols_schema.event_timestamp
+        data = self.compute_params.data
+        dt_col = self.compute_params.dt_col
+        period = self.compute_params.period
+        period_name = self.compute_params.period_name
+        formula_kwargs = self.compute_params.formula_kwargs
+        
         data = period.add_period_col(data, dt_col, new_col_name=period_name)
-    
 
-        if  hue_cols is None or len(hue_cols) == 0:
+        if hue_cols is None or len(hue_cols) == 0:
             hue_cols = []
-            result = data.groupby(period_name)\
-                .apply(lambda data: self.formula(data, cols_schema, **kwargs), include_groups=False)\
-                    .reset_index().rename(columns={0: self.name})
+        elif isinstance(hue_cols, str):
+            hue_cols = [hue_cols]
+        result = data.groupby([period_name] + hue_cols)\
+            .apply(lambda data: self.formula(data, **formula_kwargs), include_groups=False)\
+            .reset_index().rename(columns={0: self.name})
+        
+        #     result = data.groupby(period_name)\
+        #         .apply(lambda data: self.formula(data, **formula_kwargs), include_groups=False)\
+        #         .reset_index().rename(columns={0: self.name})
             
-        else:
-            if isinstance(hue_cols, str):
-                hue_cols = [hue_cols]
-            combinations = self.get_unique_combinations(data, hue_cols)
-            result = None
-            # result = pd.DataFrame(columns=[period_name] + hue_cols + [self.name])
-            # return result
-            for combo in combinations:
-                print(combo)
-                combo_result = self.filter_data_frame(data, combo).groupby(period_name)\
-                    .apply(lambda data: self.formula(data, cols_schema, **kwargs),
-                           include_groups=False)\
-                        .reset_index().rename(columns={0: self.name})
-                for col_name, col_value in combo.items():
-                    combo_result[col_name] = [col_value] * combo_result.shape[0]
-                if result is None:
-                    result = combo_result.loc[:, tuple([period_name] + hue_cols + [self.name])]
-                else:
-                    result = pd.concat([result, combo_result.loc[:, tuple([period_name] + hue_cols + [self.name])]], axis=0)
-            # return result.sort_values(period_name)
-        pivot_template = self._get_data_pivot_template(data, cols_schema, period, hue_cols)
+        # else:
+        #     if isinstance(hue_cols, str):
+        #         hue_cols = [hue_cols]
+        #     result = data.groupby([period_name] + hue_cols)\
+        #         .apply(lambda data: self.formula(data, **formula_kwargs), include_groups=False)\
+        #         .reset_index().rename(columns={0: self.name})
+            # combinations = self.get_unique_combinations(data, hue_cols)
+            # result = None
+            # # result = pd.DataFrame(columns=[period_name] + hue_cols + [self.name])
+            # # return result
+            # for combo in combinations:
+            #     print(combo)
+            #     combo_result = self.filter_data_frame(data, combo).groupby(period_name)\
+            #         .apply(lambda data: self.formula(data, **formula_kwargs),
+
+            #                include_groups=False)\
+            #         .reset_index().rename(columns={0: self.name})
+            #     for col_name, col_value in combo.items():
+            #         combo_result[col_name] = [col_value] * combo_result.shape[0]
+            #     if result is None:
+            #         result = combo_result.loc[:, tuple([period_name] + hue_cols + [self.name])]
+            #     else:
+            #         result = pd.concat([result, combo_result.loc[:, tuple([period_name] + hue_cols + [self.name])]], axis=0)
+            # # return result.sort_values(period_name)
+        pivot_template = self._get_data_pivot_template(data, dt_col, period, hue_cols)
+    
         # return data_date_range
         result = pd.merge(
             pivot_template,

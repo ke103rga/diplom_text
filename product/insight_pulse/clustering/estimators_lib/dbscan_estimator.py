@@ -21,25 +21,20 @@ class DBScanEstimator(ClusteringEstimator):
     def get_default_init_params(self):
         return self.default_init_params
     
-    def choose_optimal_n_clusters(self, n_clusters_range: List[int], X, sample_weight=None,
-                                   init_params: Optional[Dict] = None,
-                                   method: ChoosingOptimalNClustersMethods = 'elbow'):
-        raise NotImplementedError("DBSCAN does not require the number of clusters to be specified beforehand.")
-    
     def _save_data_cols(self, X):
         if isinstance(X, pd.DataFrame):
             self.data_cols = X.columns
 
-    def fit(self, X):
+    def fit(self, X, sample_weight=None):
         self._save_data_cols(X)
         self.estimator.fit(X)
         return self.estimator
     
-    def predict(self, X):
+    def predict(self, X, sample_weight=None):
         self._save_data_cols(X)
         return self.estimator.predict(X)
 
-    def fit_predict(self, X):
+    def fit_predict(self, X, sample_weight=None):
         self._save_data_cols(X)
         return self.estimator.fit_predict(X)
 

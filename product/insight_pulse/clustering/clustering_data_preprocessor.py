@@ -23,11 +23,11 @@ class ClusteringDataPreprocessor:
         self.not_preprocess_cols = []
 
     
-    def create_cluster_matrix(self, data: EventFrame, 
+    def create_cluster_matrix(self, data: EventFrame,
                             meta_info: Optional[pd.DataFrame] = None,
-                            add_session_stats: bool = True, add_path_stats: bool = True, 
+                            add_session_stats: bool = True, add_path_stats: bool = True,
                             preprocess: bool = True) -> pd.DataFrame:
-        
+
         self._check_input_params(data, meta_info)
 
         self.data = data.data.copy()
@@ -40,7 +40,7 @@ class ClusteringDataPreprocessor:
             self._create_preprocessor_pipeline()
             self._preprocess_raw_cluster_matrix()
             return self.cluster_matrix
-        
+
         return self.raw_cluster_matrix
 
     def _check_input_params(

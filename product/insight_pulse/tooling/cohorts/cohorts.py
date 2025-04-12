@@ -1,7 +1,8 @@
-from typing import Literal, Union, List, Optional, Iterable, get_args
+from typing import Literal, Union, List, Optional, Iterable, get_args, Dict
 import pandas as pd
 import numpy as np
 import seaborn as sns
+import matplotlib.pyplot as plt
 
 
 from eventframing.cols_schema import EventFrameColsSchema
@@ -23,30 +24,72 @@ class Cohorts:
         self.represent_by = None
         self.cohort_table = None
         self.normalize = False
-        
 
-    def fit(self, data: Union[pd.DataFrame, 'EventFrame'],
-            cols_schema: Optional[EventFrameColsSchema],
-            kpi_metric: MetricKPI,
+    def _prepare_fit_data(self, data: EventFrame, extract_cohorts: bool, cohort_period: Union[TimeUnitPeriod, str]):
+        if extract_cohorts:
+            cohorts_preprocessor = AddCohortsPreprocessor(cohort_period)
+            data = cohorts_preprocessor.apply(data)
+
+        cols_schema = data.cols_schema
+        data = data.data.copy()
+
+        return data, cols_schema
+
+    def fit(self, data: EventFrame,
             extract_cohorts: bool = True,
             cohort_period: Union[TimeUnitPeriod, str] = 'D',
             represent_by:RepresentationTypes ='time_unit',
             normalize: bool = False) -> pd.DataFrame:
-        self._check_fit_params(data, cols_schema, represent_by)
+        if isinstance(cohort_period , str):
+            cohort_period = TimeUnitPeriod(cohort_period)
 
-        if isinstance(data, EventFrame):
-            data = data.data.copy()
-            cols_schema = data.cols_schema
-        else:
-            data = data.copy()
+        data, cols_schema = self._prepare_fit_data(data, extract_cohorts, cohort_period)
+        print(data.head())
+
+        cohort_col = cols_schema.cohort_group
+        represent_by_col = 'cohort_time_unit' if represent_by == 'time_unit' else 'cohort_period'
+        user_id_col = cols_schema.user_id
+
+        self.cohort_period = cohort_period
+        self.represent_by = represent_by
+
+        cohort_table = data.pivot_table(
+            index=cohort_col,
+            columns=represent_by_col, 
+            values=user_id_col, 
+            aggfunc='nunique'
+        )
+
+        cohort_table = self._expand_cohort_table(
+            cohort_table=cohort_table.reset_index().melt(id_vars=['cohort_group']),
+            represent_by=represent_by,
+            represent_by_col=represent_by_col,
+            values_col='value'
+        )
+
+        if normalize:
+            cohort_table = self.normalize_cohort_table(cohort_table, represent_by)
+
+        self.cohort_table = cohort_table
+        return cohort_table
+        
+        
+
+    def fit_by_custom_kpi(self, data: EventFrame,
+            kpi_metric: MetricKPI,
+            kpi_metric_kwargs: Optional[Dict] = None,
+            extract_cohorts: bool = True,
+            cohort_period: Union[TimeUnitPeriod, str] = 'D',
+            represent_by:RepresentationTypes ='time_unit',
+            normalize: bool = False) -> pd.DataFrame:
+        self._check_fit_params(data, represent_by)
 
         if isinstance(cohort_period , str):
             cohort_period = TimeUnitPeriod(cohort_period)
 
-        if extract_cohorts:
-            cohorts_preprocessor = AddCohortsPreprocessor(cohort_period)
-            data = cohorts_preprocessor.apply(data, cols_schema)
+        data, cols_schema = self._prepare_fit_data(data, extract_cohorts, cohort_period)
 
+        cohort_col = cols_schema.cohort_group
         represent_by_col = 'cohort_time_unit' if represent_by == 'time_unit' else 'cohort_period'
 
         self.cohort_period = cohort_period
@@ -54,44 +97,63 @@ class Cohorts:
         self.kpi_metric = kpi_metric
         
         cohort_table = kpi_metric.compute_splitted_values(
-            data=data, 
-            cols_schema=cols_schema, 
-            hue_cols=['cohort_group', represent_by_col]
+            data=data.astype(str), 
+            hue_cols=[cohort_col, represent_by_col],
+            formula_kwargs=kpi_metric_kwargs
         )
-
-        pivot_template = self._prepare_pivot_template(cohort_table, represent_by)
+        cohort_table[cohort_col] = pd.to_datetime(cohort_table[cohort_col])
+        if represent_by == 'time_unit':
+            cohort_table[represent_by_col] = pd.to_datetime(cohort_table[represent_by_col])
+        else:
+            cohort_table[represent_by_col] = cohort_table[represent_by_col].astype(int)
+            
         
-        cohort_table = pd.merge(
-            pivot_template,
-            cohort_table,
-            how='left',
-            on=['cohort_group', represent_by_col]
-        ).fillna(0)
         
-        cohort_table = cohort_table.pivot_table(
-            index='cohort_group', 
-            columns=represent_by_col,
-            values=kpi_metric.name,
-            aggfunc=lambda x: x
+        # return cohort_table
+        # pivot_template = self._prepare_pivot_template(cohort_table, represent_by)
+        
+        # cohort_table = pd.merge(
+        #     pivot_template,
+        #     cohort_table,
+        #     how='left',
+        #     on=['cohort_group', represent_by_col]
+        # ).fillna(0)
+        
+        # cohort_table = cohort_table.pivot_table(
+        #     index='cohort_group', 
+        #     columns=represent_by_col,
+        #     values=kpi_metric.name,
+        #     aggfunc=lambda x: x
+        # )
+        cohort_table = self._expand_cohort_table(
+            cohort_table=cohort_table,
+            represent_by=represent_by,
+            represent_by_col=represent_by_col,
+            values_col=kpi_metric.name
         )
 
         if normalize:
-            if represent_by == 'time_unit':
-                cohort_table = cohort_table.divide(np.diag(cohort_table), axis=0).mul(100)
-            else:
-                cohort_table = cohort_table.divide(cohort_table.iloc[:, 0], axis=0).mul(100)
+            cohort_table = self.normalize_cohort_table(cohort_table, represent_by)
 
         self.cohort_table = cohort_table
         return cohort_table
     
+    def normalize_cohort_table(self, cohort_table: pd.DataFrame, represent_by: RepresentationTypes) -> pd.DataFrame:
+        if represent_by == 'time_unit':
+            cohort_table = cohort_table.divide(np.diag(cohort_table), axis=0).mul(100)
+        else:
+            cohort_table = cohort_table.divide(cohort_table.iloc[:, 0], axis=0).mul(100)
+        return cohort_table
+    
     def plot(self, annot: bool = True, fmt=None, annot_kws=None, cmap=None, title=None,
-             min_period: Optional[int] = None, max_period: Optional[int] = None, 
-             min_time_unit: Optional[Union[str, pd.Timestamp]] = None, 
-             max_time_unit: Optional[Union[str, pd.Timestamp]] = None) -> None:
+            min_cohort:Optional[Union[str, pd.Timestamp]] = None,
+            max_cohort:Optional[Union[str, pd.Timestamp]] = None,
+            min_period: Optional[int] = None, max_period: Optional[int] = None, 
+            min_time_unit: Optional[Union[str, pd.Timestamp]] = None, 
+            max_time_unit: Optional[Union[str, pd.Timestamp]] = None) -> None:
         
-        cohort_table = self.cohort_table.copy()
-
-        # here
+        # cohort_table = self.cohort_table.copy()
+        cohort_table = self._prepare_cohort_table(min_cohort, max_cohort, min_period, max_period, min_time_unit, max_time_unit)
 
         cohort_table.set_index(cohort_table.index.astype(str), inplace=True)
         cohort_table.columns = cohort_table.columns.astype(str)
@@ -103,7 +165,8 @@ class Cohorts:
         if cmap is None:
             cmap = sns.color_palette("light:b", as_cmap=True)
         if title is None:
-            title = f'{self.kpi_metric.name} by {self.cohort_period.alias} cohorts'
+            metric_name = self.kpi_metric.name if self.kpi_metric is not None else 'Unique users'
+            title = f'{metric_name} by {self.cohort_period.alias} cohorts'
 
         if self.represent_by == 'time_unit':
             ylabel = self.cohort_period.alias
@@ -123,12 +186,23 @@ class Cohorts:
     def values(self):
         return self.cohort_table.copy()
     
-    def _prepare_cohort_table(self, min_period: Optional[int] = None, max_period: Optional[int] = None, 
+    def _prepare_cohort_table(self,
+            min_cohort:Optional[Union[str, pd.Timestamp]] = None,
+            max_cohort:Optional[Union[str, pd.Timestamp]] = None,
+            min_period: Optional[int] = None, max_period: Optional[int] = None, 
             min_time_unit: Optional[Union[str, pd.Timestamp]] = None, 
             max_time_unit: Optional[Union[str, pd.Timestamp]] = None,
             group_mean: bool = False, period_mean: bool = False) -> pd.DataFrame:
         
         cohort_table = self.cohort_table.copy()
+        
+        min_cohort = min_cohort if min_cohort is not None else min(cohort_table.index)
+        max_cohort = max_cohort if max_cohort is not None else max(cohort_table.index)
+        cohorts = cohort_table.index
+        cohorts = cohorts[(cohorts >= min_cohort) & (cohorts <= max_cohort)]
+        if (len(cohorts) == 0):
+                raise ValueError(f'No cohorts which are between {str(min_cohort)} and {str(max_cohort)}')
+        cohort_table = cohort_table.loc[cohorts]
 
         if self.represent_by == 'time_unit':
             min_time_unit = np.datetime64(min_time_unit) if min_time_unit is not None else min(cohort_table.columns)
@@ -136,7 +210,8 @@ class Cohorts:
             cols = (np.datetime64(col) for col in cohort_table.columns if col >= min_time_unit and col <= max_time_unit)
             cols = tuple(cols)
             if (len(list(cols)) == 0):
-                raise ValueError(f'No cohort periods which are between {str(min_time_unit)} and {str(max_time_unit)}')
+                raise ValueError(f'No time units which are between {str(min_time_unit)} and {str(max_time_unit)}')
+            
         if self.represent_by == 'period':
             min_period = int(min_period) if min_period is not None else min(cohort_table.columns)
             max_period = int(max_period) if max_period is not None else max(cohort_table.columns)
@@ -182,17 +257,35 @@ class Cohorts:
             )
 
         return pivot_template        
+    
+    def _expand_cohort_table(self, cohort_table: pd.DataFrame, represent_by: str, 
+                            represent_by_col: str, values_col: str) -> pd.DataFrame:
+        pivot_template = self._prepare_pivot_template(cohort_table, represent_by)
+        
+        cohort_table = pd.merge(
+            pivot_template,
+            cohort_table,
+            how='left',
+            on=['cohort_group', represent_by_col]
+        ).fillna(0)
+        
+        cohort_table = cohort_table.pivot_table(
+            index='cohort_group', 
+            columns=represent_by_col,
+            values=values_col,
+            aggfunc=lambda x: x
+        )
+
+        return cohort_table
             
 
     def _check_fit_params(
             self,
             data: Union[pd.DataFrame, 'EventFrame'],
-            cols_schema: Optional[EventFrameColsSchema],
             represent_by:RepresentationTypes 
     ):
-        if not (isinstance(data, EventFrame) or
-                (isinstance(data, pd.DataFrame) and isinstance(cols_schema, EventFrameColsSchema))):
-            raise ValueError('EventFrame or DataFrame with EventFrameColsSchema')
+        if not isinstance(data, EventFrame):
+            raise ValueError('data must be an EventFrame')
         
         if not represent_by in get_args(self.RepresentationTypes):
             raise ValueError(f'Invalid representation type: {represent_by}')

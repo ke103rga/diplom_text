@@ -12,32 +12,28 @@ from abc import ABC, abstractmethod
 
 ChoosingOptimalNClustersMethods = Literal['elbow', 'silhouette']
 
+
 class ClusteringEstimator(ABC):
     default_init_params = None
-    n_clusters_range = [2, 20]
+    min_n_clusters = 2
+    max_n_clusters = 100
 
-    def _check_and_get_n_clusters(self, n_clusters: Optional[Union[str, int]] = None) -> int:
-        if isinstance(n_clusters, str):
-            if n_clusters != 'auto':
-                raise ValueError('amount of clusters or "auto"')
-            n_clusters = self._compute_n_clusters()
-        elif isinstance(n_clusters, int) and (n_clusters < self.n_clusters_range[0] or n_clusters > self.n_clusters_range[1]):
+    def _check_and_get_n_clusters(self, n_clusters: int = 5) -> int:
+        if not isinstance(n_clusters, int) or n_clusters < self.min_n_clusters or n_clusters > self.max_n_clusters:
             raise ValueError('Invalid amount of clusters')
         return n_clusters
- 
-    def _compute_n_clusters(self) -> None:
-        return 10
-    
+
     @abstractmethod
-    def get_default_init_params(self) -> Dict:
+    def fit(self, X: pd.DataFrame, sample_weight):
         pass
-    
-    # @abstractmethod
-    # @staticmethod
-    # def choose_optimal_n_clusters(n_clusters_range: List[int], X, sample_weight=None, 
-    #                                init_params: Optional[Dict] = None, 
-    #                                method:ChoosingOptimalNClustersMethods = 'elbow') -> None:
-    #     pass
+
+    @abstractmethod
+    def predict(self, X: pd.DataFrame):
+        pass
+
+    @abstractmethod
+    def fit_predict(self, X: pd.DataFrame, sample_weight):
+        pass
     
     @staticmethod
     def plot_tree(tree_clf, data_cols):

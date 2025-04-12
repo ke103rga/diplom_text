@@ -15,6 +15,7 @@ class EventFrame:
         """
         self.data = data.copy()
         self.cols_schema = EventFrameColsSchema(cols_schema)
+        print(self.cols_schema)
         if prepare:
             self.prepare()
         else:

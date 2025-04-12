@@ -19,9 +19,7 @@ class DataPreprocessor(ABC):
         pass
 
     @abstractmethod
-    def apply(self, data: Union[pd.DataFrame, 'EventFrame'],
-              cols_schema: Optional[EventFrameColsSchema] = None, 
-              prepare: bool = True) -> 'EventFrame':
+    def apply(self, data: EventFrame) -> 'EventFrame':
         """
         Применяет некоторое преобразование к объекту EventFrame.
         """

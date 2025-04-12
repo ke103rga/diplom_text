@@ -130,14 +130,6 @@ class KMeansEstimator(ClusteringEstimator):
 
         columns_order = ['cluster'] + list(centroids.drop(columns=['cluster']).columns)
         return centroids[columns_order]
-    
-    def plot_tree(self, X):
-        if self.tree_clf is None:
-            clf = DecisionTreeClassifier(random_state=42)
-            clf.fit(X, self.estimator.labels_)
-            self.tree_clf = clf
-        
-        super().plot_tree(self.tree_clf, self.data_cols)
 
     def plot_clusters_counts(self):
         super().plot_clusters_counts(self.estimator.labels_)

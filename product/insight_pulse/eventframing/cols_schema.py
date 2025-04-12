@@ -9,6 +9,7 @@ class EventFrameColsSchema:
     _event_timestamp: str
     _user_id: str
     _session_id: str
+    _cohort_group: str
     _custom_cols: List[str] = list()
 
     __necessary_cols = [
@@ -19,6 +20,7 @@ class EventFrameColsSchema:
 
     def __init__(self, cols_schema: Union[Dict[str, str], 'EventFrameColsSchema']):
         if type(cols_schema) is EventFrameColsSchema:
+            print('copy')
             self._event_id = cols_schema._event_id
             self._event_type = cols_schema._event_type
             self._event_type_index = cols_schema._event_type_index
@@ -26,6 +28,7 @@ class EventFrameColsSchema:
             self._event_timestamp = cols_schema._event_timestamp
             self._user_id = cols_schema._user_id
             self._session_id = cols_schema._session_id
+            self._cohort_group = cols_schema._cohort_group
             return
 
         # TODO: Show list of missing necessary cols in schema
@@ -39,6 +42,7 @@ class EventFrameColsSchema:
         self._event_timestamp = cols_schema.get('event_timestamp')
         self._user_id = cols_schema.get('user_id')
         self._session_id = cols_schema.get('session_id')
+        self._cohort_group = cols_schema.get('cohort_group')
 
     def copy_from(self, other):
         for attr in dir(other):
@@ -66,6 +70,7 @@ class EventFrameColsSchema:
             'event_timestamp': self._event_timestamp,
             'user_id': self._user_id,
             'session_id': self._session_id,
+            'cohort_group': self._cohort_group,
             'custom_cols': self._custom_cols.copy()  # Копируем список
         }
 
@@ -136,6 +141,15 @@ class EventFrameColsSchema:
         self._session_id = value
 
     @property
+    def cohort_group(self) -> str:
+        return self._cohort_group
+
+    @cohort_group.setter
+    def cohort_group(self, value: str):
+        self.check_setting_col_name(value)
+        self._cohort_group = value
+
+    @property
     def custom_cols(self) -> List[str]:
         return self._custom_cols
 
@@ -155,6 +169,8 @@ class EventFrameColsSchema:
                 f"event_name={self.event_name}, "
                 f"event_timestamp={self.event_timestamp}, "
                 f"user_id={self.user_id}, "
+                f"session_id={self.session_id}, "
+                f"cohort_group={self.cohort_group}, "
                 f"custom_cols={self.custom_cols})")
 
 
