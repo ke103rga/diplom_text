@@ -15,7 +15,6 @@ class EventFrame:
         """
         self.data = data.copy()
         self.cols_schema = EventFrameColsSchema(cols_schema)
-        print(self.cols_schema)
         if prepare:
             self.prepare()
         else:
@@ -99,7 +98,7 @@ class EventFrame:
         self.cols_schema.event_type_index = event_type_index_col_name
 
     def _add_event_id(self) -> None:
-
+        # TODO: make id by hash of necessary columns for every new string
         data_len = self.data.shape[0]
         event_ids = list(range(data_len))
         event_id_col_name = 'event_id'

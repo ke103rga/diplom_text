@@ -25,13 +25,10 @@ class SplitSessionsPreprocessor(DataPreprocessor):
             raise ValueError('int or TimeUnits')
         self.split_events = split_events
 
-    def apply(self, data: Union[pd.DataFrame, 'EventFrame'],
-              cols_schema: Optional[EventFrameColsSchema] = None,
-              prepare: bool = True) -> 'EventFrame':
+    def apply(self, data: Union[pd.DataFrame, 'EventFrame'], prepare: bool = True) -> 'EventFrame':
 
-        super()._check_apply_params(data, cols_schema)
-        data, cols_schema = super()._get_data_and_cols_schema(data, cols_schema, prepare)
-
+        super()._check_apply_params(data)
+        data, cols_schema = super()._get_data_and_cols_schema(data, prepare)
 
         if self.timeout is not None:
             split_data = self._split_by_timeout(data, cols_schema)
@@ -84,7 +81,7 @@ class SplitSessionsPreprocessor(DataPreprocessor):
     def _delete_synthetic_events_if_exists(self, data: pd.DataFrame, cols_schema: EventFrameColsSchema) -> pd.DataFrame:
         event_type_col = cols_schema.event_type
 
-        evet_types_to_delete = [EventType.SESSION_START.value.name, EventType.SESSION_END.value.name]
+        evnet_types_to_delete = [EventType.SESSION_START.value.name, EventType.SESSION_END.value.name]
         
-        return data[~data[event_type_col].isin(evet_types_to_delete)]
+        return data[~data[event_type_col].isin(evnet_types_to_delete)]
 

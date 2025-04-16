@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
+from typing import Tuple
 import pandas as pd
-from typing import Dict, Optional, List, Union, Tuple
 
 from eventframing.eventframe import EventFrame
 from eventframing.cols_schema import EventFrameColsSchema
@@ -8,42 +8,62 @@ from eventframing.cols_schema import EventFrameColsSchema
 
 class DataPreprocessor(ABC):
     """
-    Интерфейс для данных препроцессоров.
+    An interface for data preprocessors.
     """
 
     @abstractmethod
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: dict) -> None:
         """
-        Инициализация с использованием аргументов с переменным числом.
+        Initializes the data preprocessor with variable arguments.
+
+        Args:
+            kwargs: Variable keyword arguments for specific preprocessor settings.
         """
         pass
 
     @abstractmethod
-    def apply(self, data: EventFrame) -> 'EventFrame':
+    def apply(self, data: 'EventFrame', prepare: bool) -> 'EventFrame':
         """
-        Применяет некоторое преобразование к объекту EventFrame.
+        Applies a transformation to an EventFrame object.
+
+        Args:
+            data (EventFrame): The EventFrame data to transform.
+            prepare (bool): Indicates whether the transformation should prepare the data.
+
+        Returns:
+            EventFrame: The transformed EventFrame object.
         """
         pass
 
-    #TODO: delete cols_schema param from methods below
+    def _check_apply_params(self, data: 'EventFrame') -> None:
+        """
+        Checks the parameters for the apply method.
 
-    def _check_apply_params(self, data: EventFrame,
-                            cols_schema: Union[Dict[str, str], EventFrameColsSchema]) -> None:
+        Args:
+            data (EventFrame): The EventFrame object to check.
+
+        Raises:
+            ValueError: If the data is not an instance of EventFrame.
+        """
         if not isinstance(data, EventFrame):
             raise ValueError('data should be EventFrame')
-            # if isinstance(data, pd.DataFrame):
-            #     if cols_schema is None:
-            #         raise ValueError('You should pass cols schema with data in DataFrame')
-            #     elif not isinstance(cols_schema, EventFrameColsSchema) and not isinstance(cols_schema, dict):
-            #         raise ValueError('cols_schema should be EventFrameColsSchema or dict')
-            # else:
-            #     raise ValueError('EventFrame or DataFrame with EventFrameColsSchema')
 
-    def _get_data_and_cols_schema(self, data: EventFrame,
-                            cols_schema: Union[Dict[str, str], EventFrameColsSchema],
-                            prepare: bool) -> Tuple[pd.DataFrame, EventFrameColsSchema]:
+    def _get_data_and_cols_schema(self, data: 'EventFrame', prepare: bool) ->\
+            Tuple[pd.DataFrame, 'EventFrameColsSchema']:
+        """
+        Retrieves the data and column schema from an EventFrame.
+
+        Args:
+            data (EventFrame): The EventFrame object to extract data from.
+            prepare (bool): Indicates whether to prepare the data.
+
+        Returns:
+            Tuple[pd.DataFrame, EventFrameColsSchema]: A tuple containing a copy of the data and its column schema.
+
+        Raises:
+            ValueError: If the data is not an instance of EventFrame.
+        """
         if isinstance(data, EventFrame):
             return data.data.copy(), data.cols_schema
         else:
-            ef = EventFrame(data, cols_schema, prepare=prepare)
-            return ef.to_dataframe(), ef.cols_schema
+            raise ValueError('data should be EventFrame')

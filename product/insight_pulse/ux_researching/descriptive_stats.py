@@ -1,15 +1,12 @@
-from product.insight_pulse.eventframing.eventframe import EventFrame
-
 import pandas as pd
 from typing import Union, List, Optional, Tuple
-
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from abc import ABC, abstractmethod
-import warnings
-
-import datetime
+from eventframing.eventframe import EventFrame
+from eventframing.event_type import EventType
+from utils.time_unit_period import TimeUnitPeriod
+from utils.time_units import TimeUnits
 
 
 class DescStatsAnalyzer:
@@ -94,8 +91,8 @@ class DescStatsAnalyzer:
             raw_data = raw_data[raw_data[event_col].isin(events)].copy()
 
         events_users_stats = raw_data.groupby([user_col, event_col]).agg(
-            first_occarance_dt=(dt_col, 'min'),
-            steps_to_first_occurance=('path_step_number', 'min'),
+            first_occurrence_dt=(dt_col, 'min'),
+            steps_to_first_occurrence=('path_step_number', 'min'),
         ).reset_index()
         events_users_stats = events_users_stats.merge(
             users_first_events,
@@ -151,10 +148,10 @@ class DescStatsAnalyzer:
 
     @staticmethod
     def plot_lifetime_hist(ef: EventFrame,
-                           max_return_time: Optional[Union[int, TimeUnits, Tuple[int, str]]],
+                           max_return_time: Union[int, TimeUnits, Tuple[int, str]] = (1, 'M'),
                            plot_period: Union[str, TimeUnitPeriod] = 'D',
-                           lower_cutoff_quantile: Optional[float] = None,
-                           upper_cutoff_quantile: Optional[float] = None,
+                           lower_cutoff_quantile: float = 0.0,
+                           upper_cutoff_quantile: float = 0.95,
                            **hist_kwargs) -> None:
         # Обработка max_return_time
         if isinstance(max_return_time, int):
@@ -190,7 +187,7 @@ class DescStatsAnalyzer:
 
         lifetimes = DescStatsAnalyzer._prepare_dist_timedelta_data(
             data=user_life_data,
-            dist_col='distance',
+            dist_col='lifetime',
             new_col_name=f'lifetime ({plot_period.alias})',
             dist_period=plot_period,
             lower_cutoff_quantile=lower_cutoff_quantile,
@@ -204,12 +201,13 @@ class DescStatsAnalyzer:
             **hist_kwargs
         )
 
+    @staticmethod
     def plot_event_distance_hist(ef: EventFrame,
                                  event_from: Union[str, List[str]],
                                  event_to: Union[str, List[str]],
                                  plot_period: Union[str, TimeUnitPeriod] = 'D',
-                                 lower_cutoff_quantile: Optional[float] = None,
-                                 upper_cutoff_quantile: Optional[float] = None,
+                                 lower_cutoff_quantile: Optional[float] = 0.0,
+                                 upper_cutoff_quantile: Optional[float] = 0.95,
                                  **hist_kwargs) -> None:
         data = ef.to_dataframe().copy()
         cols_schema = ef.cols_schema
@@ -232,13 +230,11 @@ class DescStatsAnalyzer:
         # Renaming events which were passed as list
         if isinstance(event_from, list):
             event_replace = dict(zip(event_from, ['event_from'] * len(event_from)))
-            print(event_replace)
             data.event = data.event.replace(event_replace, regex=False)
             event_from = 'event_from'
 
         if isinstance(event_to, list):
             event_replace = dict(zip(event_to, ['event_to'] * len(event_to)))
-            print(event_replace)
             data.event = data.event.replace(event_replace, regex=False)
             event_to = 'event_to'
 
@@ -266,6 +262,7 @@ class DescStatsAnalyzer:
             **hist_kwargs
         )
 
+    @staticmethod
     def _prepare_dist_timedelta_data(
             data: pd.DataFrame,
             dist_col: str,
@@ -287,6 +284,7 @@ class DescStatsAnalyzer:
             ]
         return data[new_col_name]
 
+    @staticmethod
     def _plot_seaborn_hist(data: pd.Series, title: str, xaxis_label: str, yaxis_label: str, **hist_kwargs) -> None:
         fig, axes = plt.subplots(figsize=(12, 6))
         sns.histplot(data, kde=True, **hist_kwargs)
@@ -297,6 +295,7 @@ class DescStatsAnalyzer:
         plt.tight_layout()
         plt.show()
 
+    @staticmethod
     def _compute_desc_stats(data: pd.DataFrame,
                             agg_cols: Optional[List[str]] = None,
                             agg_funcs: Optional[List[str]] = None) -> List[List]:

@@ -2,7 +2,6 @@ import pandas as pd
 from typing import Union, Tuple , Callable
         
 
-
 class TimeUnits:
     TIME_UNITS = ["Y", "M", "W", "D", "h", "m", "s", "ms",]
     TIME_UNITS_SET = set(TIME_UNITS)
@@ -21,8 +20,8 @@ class TimeUnits:
             self.quantity = time_tuple.quantity
             self.time_unit = time_tuple.time_unit
 
-    def get_timeunit_period(self):
-        return TimeUnitPeriod(self)
+    # def get_timeunit_period(self):
+    #     return TimeUnitPeriod(self)
 
     def get_time_delta(self):
         """
@@ -41,9 +40,9 @@ class TimeUnits:
         elif self.time_unit == 'W':  # недели
             return pd.Timedelta(weeks=self.quantity)
         elif self.time_unit == 'M':  # месяцы
-            return pd.Timedelta(months=self.quantity)
+            return pd.Timedelta(days=self.quantity * 30)
         elif self.time_unit == 'Y':  # года
-            return pd.Timedelta(years=self.quantity)
+            return pd.Timedelta(days=self.quantity * 365)
         
 
 class TimeUnitPeriod:
@@ -78,7 +77,6 @@ class TimeUnitPeriod:
             "ms": "Миллисекунда"
         }
         return russian_alias_mapping.get(self.time_unit, "Неизвестно")
-        
 
     def get_period_compute_func(self) -> Callable:
         def compute(data: pd.DataFrame, dt_col: str) -> pd.DataFrame:
@@ -93,13 +91,17 @@ class TimeUnitPeriod:
             elif self.time_unit == "D":
                 data["TimeUnitPeriod"] = (data[dt_col] + pd.to_timedelta(self.time_unit.quantity, unit='d')).dt.date
             elif self.time_unit == "h":
-                data["TimeUnitPeriod"] = (data[dt_col] + pd.to_timedelta(self.time_unit.quantity, unit='h')).dt.strftime('%Y-%m-%d %H:%M:%S')
+                data["TimeUnitPeriod"] = (data[dt_col] + pd.to_timedelta(self.time_unit.quantity, unit='h'))\
+                    .dt.strftime('%Y-%m-%d %H:%M:%S')
             elif self.time_unit == "m":
-                data["TimeUnitPeriod"] = (data[dt_col] + pd.to_timedelta(self.time_unit.quantity, unit='m')).dt.strftime('%Y-%m-%d %H:%M:%S')
+                data["TimeUnitPeriod"] = (data[dt_col] + pd.to_timedelta(self.time_unit.quantity, unit='m'))\
+                    .dt.strftime('%Y-%m-%d %H:%M:%S')
             elif self.time_unit == "s":
-                data["TimeUnitPeriod"] = (data[dt_col] + pd.to_timedelta(self.time_unit.quantity, unit='s')).dt.strftime('%Y-%m-%d %H:%M:%S')
+                data["TimeUnitPeriod"] = (data[dt_col] + pd.to_timedelta(self.time_unit.quantity, unit='s'))\
+                    .dt.strftime('%Y-%m-%d %H:%M:%S')
             elif self.time_unit == "ms":
-                data["TimeUnitPeriod"] = (data[dt_col] + pd.to_timedelta(self.time_unit.quantity * 0.001, unit='s')).dt.strftime('%Y-%m-%d %H:%M:%S')
+                data["TimeUnitPeriod"] = (data[dt_col] + pd.to_timedelta(self.time_unit.quantity * 0.001, unit='s'))\
+                    .dt.strftime('%Y-%m-%d %H:%M:%S')
 
             return data
 

@@ -20,7 +20,6 @@ class EventFrameColsSchema:
 
     def __init__(self, cols_schema: Union[Dict[str, str], 'EventFrameColsSchema']):
         if type(cols_schema) is EventFrameColsSchema:
-            print('copy')
             self._event_id = cols_schema._event_id
             self._event_type = cols_schema._event_type
             self._event_type_index = cols_schema._event_type_index
