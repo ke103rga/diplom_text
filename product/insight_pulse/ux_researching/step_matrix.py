@@ -1,8 +1,12 @@
+import itertools
 import pandas as pd
 from typing import Union, List, Optional, Tuple
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+
+from eventframing.eventframe import EventFrame
+from eventframing.cols_schema import EventFrameColsSchema
 
 
 class StepMatrix:
@@ -24,8 +28,13 @@ class StepMatrix:
     def plot_difference(self, segment1, segment2, data: Optional[EventFrame] = None, max_steps: int = 10,
                         threshold: float = 0.05, weight_col: str = '', target_events: List[str] = None,
                         title: str = '') -> None:
-        difference_matrix = self._fit_matrix_difference(segment1, segment2, data=data, max_steps=max_steps,
-                                                        weight_col=weight_col)
+        difference_matrix = self._fit_matrix_difference(
+            segment1,
+            segment2,
+            data=data,
+            max_steps=max_steps,
+            weight_col=weight_col
+        )
 
         difference_matrix, rare_events = self._threshold_events(difference_matrix, threshold)
         self._plot(difference_matrix, rare_events, max_steps=max_steps, title=title, target_events=target_events)
@@ -44,8 +53,7 @@ class StepMatrix:
         return thresholded_difference_matrix
 
     def _get_data_and_schema(self, data: Optional[Union[EventFrame, pd.DataFrame]] = None,
-                             cols_schema: Optional[EventFrameColsSchema] = None) -> Tuple[
-        pd.DataFrame, EventFrameColsSchema]:
+                             cols_schema: Optional[EventFrameColsSchema] = None) -> Tuple[pd.DataFrame, EventFrameColsSchema]:
         if data is None:
             print('data is None')
             data = self.ef.to_dataframe().copy()
@@ -70,8 +78,14 @@ class StepMatrix:
         step_matrix1 = self._fit(segment1_data, cols_schema, max_steps=max_steps, weight_col=weight_col)
         step_matrix2 = self._fit(segment2_data, cols_schema, max_steps=max_steps, weight_col=weight_col)
 
-        merged_matrix = pd.merge(step_matrix1, step_matrix2, left_index=True, right_index=True, suffixes=('_1', '_2'),
-                                 how='outer').fillna(0)
+        merged_matrix = pd.merge(
+            step_matrix1,
+            step_matrix2,
+            left_index=True,
+            right_index=True,
+            suffixes=('_1', '_2'),
+            how='outer'
+        ).fillna(0)
 
         difference_matrix = merged_matrix.filter(like='_1').subtract(merged_matrix.filter(like='_2').values)
         difference_matrix.columns = [col.replace('_1', '') for col in difference_matrix.columns]
@@ -153,8 +167,7 @@ class StepMatrix:
 
         main_matrix_axes.xaxis.set_ticks_position('top')
         main_matrix_axes.xaxis.tick_top()
-        main_matrix_axes.set_xlabel('')  # Убираем метку оси X
-
+        main_matrix_axes.set_xlabel('')
 
         target_height = fig_hight / (step_matrix.shape[0] + target_events_count)
         if target_events is not None:
@@ -163,6 +176,6 @@ class StepMatrix:
                 sns.heatmap(target_event_row, ax=axs[idx + 1], fmt='0.2f', cbar=False, annot=True,
                             cmap=next(self._target_cmaps))
 
-                axs[idx + 1].set_title('')  # Убираем заголовок
-                axs[idx + 1].xaxis.set_visible(False)  # Скрываем метки оси X
-                axs[idx + 1].set_ylabel('')  # Убираем метку оси Y
+                axs[idx + 1].set_title('')  # Delete title
+                axs[idx + 1].xaxis.set_visible(False)
+                axs[idx + 1].set_ylabel('')

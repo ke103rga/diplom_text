@@ -1,14 +1,9 @@
 import pandas as pd
-from typing import Union, List, Optional, Iterable, get_args, Dict, Tuple
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
-from sklearn.metrics import silhouette_score
-from sklearn.cluster import KMeans, DBSCAN
-from sklearn.tree import DecisionTreeClassifier
-from sklearn import tree
+from typing import Union, List, Optional, Tuple
 
-import seaborn as snss
+from eventframing.eventframe import EventFrame
+from eventframing.cols_schema import EventFrameColsSchema
+
 
 class Sequences:
     def __init__(self, ef: EventFrame):

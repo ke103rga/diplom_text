@@ -22,8 +22,18 @@ class ClusteringDataPreprocessor:
         self.cat_features = None
         self.not_preprocess_cols = []
 
-    
+    # temporary interface without meta info
     def create_cluster_matrix(self, data: EventFrame,
+                              add_session_stats: bool = True, add_path_stats: bool = True,
+                              preprocess: bool = True) -> pd.DataFrame:
+        return self._create_cluster_matrix(
+            data, meta_info=None,
+            add_session_stats=add_session_stats,
+            add_path_stats=add_path_stats,
+            preprocess=preprocess
+        )
+    
+    def _create_cluster_matrix(self, data: EventFrame,
                             meta_info: Optional[pd.DataFrame] = None,
                             add_session_stats: bool = True, add_path_stats: bool = True,
                             preprocess: bool = True) -> pd.DataFrame:
@@ -82,7 +92,7 @@ class ClusteringDataPreprocessor:
 
         if add_path_stats:
             if data[data[cols_schema.event_type] == EventType.PATH_START.value.name].empty:
-                raise ValueError('EventFrameColsSchema paths info. Use Add... to add it')
+                raise ValueError('EventFrameColsSchema paths info. Use AddStartEndEvents class to add it')
             users_paths_stats = self._get_user_path_stats(data, cols_schema)
 
             raw_cluster_matrix = pd.merge(
@@ -204,7 +214,7 @@ class ClusteringDataPreprocessor:
             on=[user_id_col]
         )
 
-        # Rewrite to amount if days
+        # Rewrite to amount of days
         raw_path_stats['lifetime'] = (raw_path_stats['path_end_dt'] - raw_path_stats['path_start_dt'])\
             .apply(lambda delta: delta.total_seconds()).div(60)
         raw_path_stats = pd.merge(
@@ -265,7 +275,7 @@ class ClusteringDataPreprocessor:
         else:
             data_processed = data.copy()
 
-        reconstructed_data = pd.DataFrame()
+        # reconstructed_data = pd.DataFrame()
 
         # Восстановление категориальных переменных
         cat_features_indices = self.data_preprocessor.transformers_[1][2]

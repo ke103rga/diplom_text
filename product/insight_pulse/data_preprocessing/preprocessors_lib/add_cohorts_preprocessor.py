@@ -46,7 +46,6 @@ class AddCohortsPreprocessor(DataPreprocessor):
         Returns:
             EventFrame: The processed EventFrame with added cohort groups.
         """
-        # TODO : set event_name to detect cohorts as param
         # Check and get data
         super()._check_apply_params(data)
         data, cols_schema = super()._get_data_and_cols_schema(data, prepare)

@@ -1,5 +1,5 @@
 import pandas as pd
-from typing import Literal, Union, List, Optional, Dict
+from typing import Literal, Union,  Optional, Dict, Tuple
 from sklearn.metrics import silhouette_score
 from sklearn.cluster import KMeans
 from sklearn.tree import DecisionTreeClassifier
@@ -39,7 +39,7 @@ class KMeansEstimator(ClusteringEstimator):
         return self._default_init_params
     
     @staticmethod
-    def choose_optimal_n_clusters(n_clusters_range: List[int], X, sample_weight=None, 
+    def choose_optimal_n_clusters(n_clusters_range: Tuple[int, int], X, sample_weight=None,
                                    init_params: Optional[Dict] = None, 
                                    method:ChoosingOptimalNClustersMethods = 'elbow'):
         # Check range
@@ -102,8 +102,7 @@ class KMeansEstimator(ClusteringEstimator):
     def set_n_clusters(self, n_clusters):
         self.n_clusters = n_clusters
         self.estimator.set_params(**{'n_clusters': n_clusters})
-        
-    
+
     def _save_data_cols(self, X):
         if isinstance(X, pd.DataFrame):
             self.data_cols = X.columns
@@ -121,10 +120,8 @@ class KMeansEstimator(ClusteringEstimator):
     def fit_predict(self, X, sample_weight=None):
         self._save_data_cols(X)
         return self.estimator.fit_predict(X, sample_weight)
-
     
-    def describe_by_centroids(self, X):
-        
+    def describe_by_centroids(self):
         centroids = pd.DataFrame(data=self.estimator.cluster_centers_, columns=self.data_cols)
         centroids['cluster'] = range(centroids.shape[0])
 

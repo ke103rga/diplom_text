@@ -1,7 +1,11 @@
 import pandas as pd
-from typing import Literal, Union, List, Optional, Iterable, get_args, Dict, Tuple, Any
+from typing import Union, List, Optional, Tuple
 import plotly.graph_objects as go
-from pandas import DataFrame, Series
+from pandas import DataFrame
+import seaborn as sns
+
+from eventframing.eventframe import EventFrame
+from eventframing.cols_schema import EventFrameColsSchema
 
 
 class StepSankey:
@@ -18,7 +22,7 @@ class StepSankey:
         self.links = None
 
     def fit(self, data: Optional[EventFrame] = None, max_steps: int = 10, threshold: float = 0.05,
-            weight_col: str = '', events_to_keep: Optional[List[str]] = None) -> pd.DataFrame:
+            weight_col: str = '', events_to_keep: Optional[List[str]] = None) -> Tuple[pd.DataFrame, pd.DataFrame]:
         data, _ = self._get_data_and_schema(data=data)
         prepared_data = self._prepare_data(data, max_steps, weight_col)
         nodes, rare_events = self._get_nodes(prepared_data, threshold, events_to_keep)
@@ -28,7 +32,7 @@ class StepSankey:
         return nodes, links
 
     def plot(self, data: Optional[EventFrame] = None, max_steps: int = 10, threshold: float = 0.05,
-              weight_col: str = '', events_to_keep: Optional[List[str]] = None, title: str = 'StepSankey'):
+             weight_col: str = '', events_to_keep: Optional[List[str]] = None, title: str = 'StepSankey'):
         nodes, links = self.fit(data, max_steps, threshold, weight_col, events_to_keep)
 
         fig = go.Figure(data=[go.Sankey(
@@ -53,8 +57,7 @@ class StepSankey:
         fig.show()
 
     def _get_data_and_schema(self, data: Optional[Union[EventFrame, pd.DataFrame]] = None,
-                             cols_schema: Optional[EventFrameColsSchema] = None) -> Tuple[
-        pd.DataFrame, EventFrameColsSchema]:
+                             cols_schema: Optional[EventFrameColsSchema] = None) -> Tuple[pd.DataFrame, EventFrameColsSchema]:
         if data is None:
             print('data is None')
             data = self.ef.to_dataframe().copy()
@@ -77,7 +80,7 @@ class StepSankey:
         data = data.copy()
 
         user_col = self.cols_schema.user_id
-        event_col = self.cols_schema._event_name
+        event_col = self.cols_schema.event_name
         session_col = self.cols_schema.session_id
         dt_col = self.cols_schema.event_timestamp
 
@@ -108,7 +111,7 @@ class StepSankey:
 
     def _get_nodes(self, prepared_data: pd.DataFrame, threshold: Union[float, int] = 0,
                    events_to_keep: List[str] = None) -> tuple[DataFrame, DataFrame]:
-        event_col = self.cols_schema._event_name
+        event_col = self.cols_schema.event_name
         if events_to_keep is None:
             events_to_keep = [self._path_end_event_name]
         else:
@@ -143,8 +146,7 @@ class StepSankey:
 
             rare_events = pd.merge(
                 rare_events.loc[:, ('step', event_col)],
-                rare_events_replacers.loc[:, ('step', event_col)] \
-                    .rename(columns={event_col: 'new_event_name'}),
+                rare_events_replacers.loc[:, ('step', event_col)].rename(columns={event_col: 'new_event_name'}),
                 on='step'
             )
 
@@ -213,8 +215,8 @@ class StepSankey:
 
         links = pd.merge(
             links.assign(next_step=lambda x: x['step'] + 1),
-            nodes \
-                .rename(columns={event_col: 'next_event', 'step': 'next_step'}) \
+            nodes\
+                .rename(columns={event_col: 'next_event', 'step': 'next_step'})\
                 .loc[:, ('next_step', 'next_event', 'index')],
             on=['next_step', 'next_event'],
             how='left'
@@ -223,7 +225,7 @@ class StepSankey:
         return links
 
     @staticmethod
-    def _prepare_palette(all_events: list, event_col: str) -> list[tuple]:
+    def _prepare_palette(all_events: list, event_col: str) -> pd.DataFrame:
         palette_hex = [
             "50BE97",  # Нежный зеленый
             "E4655C",  # Красный
@@ -253,4 +255,3 @@ class StepSankey:
         palette = pd.DataFrame({event_col: all_events, 'color': palette})
         palette['color'] = 'rgb' + palette['color'].astype(str).str.replace(' ', '')
         return palette
-

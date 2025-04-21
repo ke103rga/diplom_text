@@ -11,14 +11,12 @@ from eventframing.event_type import EventType
 from utils.time_unit_period import TimeUnitPeriod
 
 
-
 class _Metric(ABC):
     def __init__(self, formula: Callable, name: str, description: str = None):
         self.formula = formula
         self.name = name
         self.description = description
 
-    
     @staticmethod    
     def get_unique_combinations(data: pd.DataFrame, hue_cols: Union[str, List[str]]) -> List[Dict]:
         """
@@ -91,8 +89,7 @@ class MetricKPI(_Metric):
         # Создаем DataFrame с этим мультииндексом
         pivot_template = pd.DataFrame(index=index).reset_index()
         return pivot_template
-        
-        
+
     def compute_single_value(self, data: Union[pd.DataFrame, 'EventFrame'], 
                              formula_kwargs: Optional[Dict] = None) -> float:
         data = super()._get_data(data)
