@@ -195,7 +195,7 @@ class DescStatsAnalyzer:
         )
         DescStatsAnalyzer._plot_seaborn_hist(
             lifetimes,
-            title='Distribution of Event Distance',
+            title='Distribution of users lifetime',
             xaxis_label=f'Lifetime ({plot_period.alias})',
             yaxis_label='Users',
             **hist_kwargs

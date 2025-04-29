@@ -9,6 +9,7 @@ from eventframing.cols_schema import EventFrameColsSchema
 
 
 class StepSankey:
+    # TODO: rename param weight_col into `inside_session`: bool and drop path start events if it's true
     _path_end_event_name = 'ENDED'
 
     def __init__(self, ef: EventFrame):
@@ -33,6 +34,8 @@ class StepSankey:
 
     def plot(self, data: Optional[EventFrame] = None, max_steps: int = 10, threshold: float = 0.05,
              weight_col: str = '', events_to_keep: Optional[List[str]] = None, title: str = 'StepSankey'):
+        data, cols_schema = self._get_data_and_schema(data=data)
+        event_col = self.cols_schema.event_name
         nodes, links = self.fit(data, max_steps, threshold, weight_col, events_to_keep)
 
         fig = go.Figure(data=[go.Sankey(
@@ -40,7 +43,7 @@ class StepSankey:
                 pad=15,
                 thickness=20,
                 line=dict(color="black", width=0.5),
-                label=nodes.step.astype(str) + nodes.event.astype(str),
+                label=nodes.step.astype(str) + nodes[event_col].astype(str),
                 customdata=nodes.desc,
                 hovertemplate='%{customdata}',
                 color=nodes.color
@@ -59,7 +62,6 @@ class StepSankey:
     def _get_data_and_schema(self, data: Optional[Union[EventFrame, pd.DataFrame]] = None,
                              cols_schema: Optional[EventFrameColsSchema] = None) -> Tuple[pd.DataFrame, EventFrameColsSchema]:
         if data is None:
-            print('data is None')
             data = self.ef.to_dataframe().copy()
             cols_schema = self.cols_schema
         else:
@@ -134,7 +136,7 @@ class StepSankey:
             rare_events_replacers = rare_events.groupby('step').agg(**{
                 'pers_of_total': ('pers_of_total', 'sum'),
                 self.step_weight_col: (self.step_weight_col, 'sum'),
-                'event': (event_col, lambda col: f'thresholded_{col.count()}')
+                event_col: (event_col, lambda col: f'thresholded_{col.count()}')
             }).reset_index()
             rare_events_replacers[self.total_weight_col] = total_weight_col_value
 

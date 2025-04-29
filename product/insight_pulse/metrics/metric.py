@@ -127,17 +127,6 @@ class MetricKPI(_Metric):
         result[self.name] = result[self.name].fillna(fillna_value)
 
         return result
-        
-            
-        combinations = self.get_unique_combinations(data, hue_cols)
-        result = []
-        for combo in combinations:
-            combo_desc = combo.copy()
-            combo_formula_result = self.formula(self.filter_data_frame(data, combo), **formula_kwargs)
-            combo_desc.update({self.name: combo_formula_result})
-            result.append(combo_desc)
-            
-        return pd.DataFrame(result)
     
 
 class MetricDinamicComputeParams():
@@ -222,34 +211,6 @@ class MetricDinamic(_Metric):
             .apply(lambda data: self.formula(data, **formula_kwargs), include_groups=False)\
             .reset_index().rename(columns={0: self.name})
         
-        #     result = data.groupby(period_name)\
-        #         .apply(lambda data: self.formula(data, **formula_kwargs), include_groups=False)\
-        #         .reset_index().rename(columns={0: self.name})
-            
-        # else:
-        #     if isinstance(hue_cols, str):
-        #         hue_cols = [hue_cols]
-        #     result = data.groupby([period_name] + hue_cols)\
-        #         .apply(lambda data: self.formula(data, **formula_kwargs), include_groups=False)\
-        #         .reset_index().rename(columns={0: self.name})
-            # combinations = self.get_unique_combinations(data, hue_cols)
-            # result = None
-            # # result = pd.DataFrame(columns=[period_name] + hue_cols + [self.name])
-            # # return result
-            # for combo in combinations:
-            #     print(combo)
-            #     combo_result = self.filter_data_frame(data, combo).groupby(period_name)\
-            #         .apply(lambda data: self.formula(data, **formula_kwargs),
-
-            #                include_groups=False)\
-            #         .reset_index().rename(columns={0: self.name})
-            #     for col_name, col_value in combo.items():
-            #         combo_result[col_name] = [col_value] * combo_result.shape[0]
-            #     if result is None:
-            #         result = combo_result.loc[:, tuple([period_name] + hue_cols + [self.name])]
-            #     else:
-            #         result = pd.concat([result, combo_result.loc[:, tuple([period_name] + hue_cols + [self.name])]], axis=0)
-            # # return result.sort_values(period_name)
         pivot_template = self._get_data_pivot_template(data, dt_col, period, hue_cols)
     
         # return data_date_range

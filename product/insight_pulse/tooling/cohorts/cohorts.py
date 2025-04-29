@@ -157,14 +157,16 @@ class Cohorts:
              max_time_unit: Optional[Union[str, pd.Timestamp]] = None) -> None:
 
         # cohort_table = self.cohort_table.copy()
-        cohort_table = self._prepare_cohort_table(min_cohort, max_cohort, min_period, max_period, min_time_unit,
-                                                  max_time_unit)
+        cohort_table = self._prepare_cohort_table(
+            min_cohort, max_cohort, min_period, 
+            max_period, min_time_unit, max_time_unit
+        )
 
         cohort_table.set_index(cohort_table.index.astype(str), inplace=True)
         cohort_table.columns = cohort_table.columns.astype(str)
 
         if fmt is None:
-            fmt = '.0%' if self.normalize else '.2f'
+            fmt = '.0%' if self.normalize else '.0f'
         if annot_kws is None:
             annot_kws = {'fontsize': 10}
         if cmap is None:
@@ -178,7 +180,7 @@ class Cohorts:
         else:
             ylabel = f'{self.cohort_period.alias}(s) after first visit'
 
-        fig, axes = plt.subplots(figsize=(12, 6))
+        fig, axes = plt.subplots(figsize=(16, 6))
         sns.heatmap(data=cohort_table, mask=cohort_table.isnull(),
                     annot=annot, fmt=fmt, ax=axes, annot_kws=annot_kws, cmap=cmap)
         axes.set_title(title)

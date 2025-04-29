@@ -12,6 +12,7 @@ class Sequences:
         self.threshold = None
         self.sequences_df = None
         self.amount_of_sequences = 0
+        self.ngram_range = None
         self.unique_weight_col_name = ''
         self.share_weight_col_name = ''
         self.intersect_separator = ' -> '
@@ -36,7 +37,7 @@ class Sequences:
                          support_threshold: float = 0.05, inside_session: bool = True):
         data, cols_schema = self._get_data_and_schema(data=data)
         user_col = cols_schema.user_id
-        event_col = cols_schema._event_name
+        event_col = cols_schema.event_name
         session_col = cols_schema.session_id
         dt_col = cols_schema.event_timestamp
 
@@ -50,7 +51,7 @@ class Sequences:
         data = data.sort_values(by=[user_col, dt_col])
         data['step'] = data.groupby(weight_col)[dt_col].cumcount() + 1
 
-        # Pivot table to create a sarse matrix of events on every step in path or session
+        # Pivot table to create a matrix of events on every step in path or session
         data_pivot = data.pivot_table(index=weight_col, columns='step', values=event_col, aggfunc=lambda x: x)
 
         # Create a list of all possible ngrams
@@ -86,6 +87,7 @@ class Sequences:
         self.threshold = support_threshold
         self.unique_weight_col_name = unique_weight_col_name
         self.share_weight_col_name = share_weight_col_name
+        self.ngram_range = ngram_range
         return sequences_df[
             (sequences_df['sequence_len'] >= ngram_range[0]) &
             (sequences_df['support'] >= support_threshold)
@@ -96,7 +98,11 @@ class Sequences:
             raise ValueError('It is necessary to use select_freq_sets method first.')
 
         # Filter the frequent itemsets based on the minimum support threshold
-        frequent_sequences = self.sequences_df[self.sequences_df['support'] > self.threshold].copy()
+        frequent_sequences = self.sequences_df[
+            (self.sequences_df['support'] > self.threshold) &
+            (self.sequences_df['sequence_len'] > self.ngram_range[0])
+        ].copy()
+
         # Split sequences into premise and conclusion
         frequent_sequences['split_index'] = frequent_sequences['sequence'].str.rfind(self.intersect_separator)
         frequent_sequences['premise'] = frequent_sequences.apply(lambda row: row['sequence'][:row['split_index']],

@@ -9,7 +9,11 @@ from eventframing.eventframe import EventFrame
 from eventframing.cols_schema import EventFrameColsSchema
 
 
+pd.set_option('mode.chained_assignment', None)
+
+
 class StepMatrix:
+    # TODO : MOve _path_end_event_name in the bottom of matrix
     _path_end_event_name = 'ENDED'
     _target_cmaps = itertools.cycle(["BrBG", "PuOr", "PRGn", "RdBu"])
 
@@ -55,7 +59,6 @@ class StepMatrix:
     def _get_data_and_schema(self, data: Optional[Union[EventFrame, pd.DataFrame]] = None,
                              cols_schema: Optional[EventFrameColsSchema] = None) -> Tuple[pd.DataFrame, EventFrameColsSchema]:
         if data is None:
-            print('data is None')
             data = self.ef.to_dataframe().copy()
             cols_schema = self.cols_schema
         else:
@@ -148,7 +151,7 @@ class StepMatrix:
             target_events_count = 0
         n_cols = 1
         n_rows = 1 + target_events_count
-        fig_hight = (step_matrix.shape[0] + target_events_count) * 0.6
+        fig_hight = (step_matrix.shape[0] + target_events_count) * 0.4
         fig_width = max_steps * 0.6 + 1
 
         grid_specs = (
@@ -179,3 +182,4 @@ class StepMatrix:
                 axs[idx + 1].set_title('')  # Delete title
                 axs[idx + 1].xaxis.set_visible(False)
                 axs[idx + 1].set_ylabel('')
+                axs[idx + 1].set_yticklabels(axs[idx + 1].get_yticklabels(), rotation=0)
