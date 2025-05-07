@@ -9,6 +9,7 @@ from eventframing.eventframe import EventFrame
 from eventframing.cols_schema import EventFrameColsSchema
 from eventframing.event_type import EventType
 from utils.time_unit_period import TimeUnitPeriod
+from metrics.dinamic_metric_plotter import DinamicMetricPlotter as dmp
 
 
 class _Metric(ABC):
@@ -112,12 +113,11 @@ class MetricKPI(_Metric):
             hue_cols = [hue_cols]
 
         result = data.groupby(hue_cols)\
-            .apply(lambda group_data: self.formula(group_data, **formula_kwargs), include_groups=False)\
+            .apply(lambda group_data: self.formula(group_data, **formula_kwargs))\
             .reset_index().rename(columns={0: self.name})
         
         pivot_template = self._get_data_pivot_template(data, hue_cols)
-    
-        # return data_date_range
+
         result = pd.merge(
             pivot_template,
             result,
@@ -129,7 +129,7 @@ class MetricKPI(_Metric):
         return result
     
 
-class MetricDinamicComputeParams():
+class MetricDinamicComputeParams:
     def __init__(self, data: Union[pd.DataFrame, 'EventFrame'],
                 period: Union[str, TimeUnitPeriod],
                 hue_cols: Union[str, List[str]], 
@@ -167,14 +167,13 @@ class MetricDinamicComputeParams():
     
 
 class MetricDinamic(_Metric):
-    def __init__(self, formula: Callable[[Union[pd.DataFrame, EventFrame], Optional[EventFrameColsSchema], dict], float], 
+    def __init__(self, formula: Callable[[Union[pd.DataFrame, EventFrame], dict], float],
                  name: str, description: str = ''):
         super().__init__(formula, name, description)
         self.compute_params: Optional[MetricDinamicComputeParams] = None            
 
     def _get_data_pivot_template(self, data: pd.DataFrame, dt_col: str, 
                                  period: TimeUnitPeriod, hue_cols: List[str]) -> pd.DataFrame:
-        # dt_col = cols_schema.event_timestamp
         min_date, max_date = data[dt_col].min(), data[dt_col].max()
         pivot_template = period.generte_monotic_time_range(min_date, max_date)
         if len(hue_cols) > 0:
@@ -208,12 +207,11 @@ class MetricDinamic(_Metric):
         elif isinstance(hue_cols, str):
             hue_cols = [hue_cols]
         result = data.groupby([period_name] + hue_cols)\
-            .apply(lambda data: self.formula(data, **formula_kwargs), include_groups=False)\
+            .apply(lambda group_data: self.formula(group_data, **formula_kwargs))\
             .reset_index().rename(columns={0: self.name})
         
         pivot_template = self._get_data_pivot_template(data, dt_col, period, hue_cols)
-    
-        # return data_date_range
+
         result = pd.merge(
             pivot_template,
             result,
@@ -222,3 +220,63 @@ class MetricDinamic(_Metric):
         )
         result[self.name] = result[self.name].fillna(fillna_value)
         return result.sort_values([period_name] + hue_cols)
+
+    def plot(self, data: Union[pd.DataFrame, 'EventFrame'],
+             period: Union[str, TimeUnitPeriod] = 'D',
+             hue_cols: Union[str, List[str]] = None,
+             dt_col: str = None,
+             fillna_value: float = 0,
+             formula_kwargs: Optional[Dict] = None,
+             smooth: int = 0,
+             engine: str = 'plotly',
+             figsize: Tuple[int, int] = (12, 6)) -> None:
+        metric_data = self.compute(
+            data=data,
+            period=period,
+            hue_cols=hue_cols,
+            dt_col=dt_col,
+            fillna_value=fillna_value,
+            formula_kwargs=formula_kwargs,
+        )
+
+        new_dt_col = self.compute_params.period_name
+        dmp.plot(
+            metric_data,
+            dt_col=new_dt_col,
+            value_col=self.name,
+            hue_cols=hue_cols,
+            smooth=smooth,
+            engine=engine,
+            figsize=figsize
+        )
+
+    def plot_analyze(self, data: Union[pd.DataFrame, 'EventFrame'],
+                     period: Union[str, TimeUnitPeriod] = 'D',
+                     dt_col: str = None,
+                     fillna_value: float = 0,
+                     formula_kwargs: Optional[Dict] = None,
+                     window_sizes: Optional[List[int]] = None,
+                     lags: Optional[int] = None,
+                     trend_line: bool = False,
+                     figsize: Optional[Tuple[int, int]] = None) -> None:
+
+        metric_data = self.compute(
+            data=data,
+            period=period,
+            hue_cols=None, # It's possible to analyze only single time series
+            dt_col=dt_col,
+            fillna_value=fillna_value,
+            formula_kwargs=formula_kwargs,
+        )
+
+        new_dt_col = self.compute_params.period_name
+        
+        dmp.plot_analysis(
+            data=metric_data,
+            dt_col=new_dt_col,
+            value_col=self.name,
+            window_sizes=window_sizes,
+            lags=lags,
+            trend_line=trend_line,
+            figsize=figsize
+        )

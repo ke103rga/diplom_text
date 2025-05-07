@@ -326,6 +326,6 @@ def t():
     cohorts.fit(ef, normalize=True)
 
 
-t()
+# t()
 
 

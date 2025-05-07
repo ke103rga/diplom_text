@@ -415,4 +415,4 @@ def t():
     funnel.fit(ef, funnel_type='closed', stages=[['product1', 'product2'], 'cart', 'payment_done'])
 
 
-t()
+# t()
